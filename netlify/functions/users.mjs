@@ -11,7 +11,7 @@
 
 const SB_URL = process.env.SUPABASE_URL;
 const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const DOMAIN = process.env.LOGIN_DOMAIN || 'danglila-stem.netlify.app';
+const DOMAIN = process.env.LOGIN_DOMAIN || 'dangila-stem.netlify.app';
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });

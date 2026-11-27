@@ -1,0 +1,9 @@
+{
+  "name": "dangila-stem",
+  "private": true,
+  "description": "Dangila STEM Club learning platform. Only the Netlify functions use these packages; the website itself has no build step.",
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest"
+  }
+}

@@ -73,11 +73,14 @@ const labCard = (l, prog) => {
       ${safe ? `<div class="embed"><iframe src="${safe}" title="${E(l.title)}" loading="lazy" allowfullscreen sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe></div><p class="note"><a href="${safe}" target="_blank" rel="noopener">Open full screen ↗</a></p>` : '<p class="empty">This lab has no valid link yet.</p>'}`;
   } else if (l.kind === 'guide') {
     body = `<div class="guide">${ui.richText(l.instructions)}</div>${STEM.state.user ? `<button class="btn ghost doneBtn">I did this experiment</button>` : ''}`;
+  } else if (l.kind === 'code') {
+    body = STEM.codeLabHTML(l);
   } else {
     body = STEM.SIMS.find(x => x.id === l.id) ? '<div class="simbody"></div>' : '<p class="empty">The simulation file for this lab is missing.</p>';
   }
-  const kindTag = l.kind === 'embed' ? '<span class="lvl">Outside simulation</span>' : l.kind === 'guide' ? '<span class="lvl">Hands-on</span>' : '';
-  return `<article class="sim" id="${E(l.id)}"><header><h3>${E(l.title)}</h3>${l.level ? `<span class="lvl">${E(l.level)}</span>` : ''}${kindTag}<span class="pbadge">${badge}</span><p>${E(l.blurb)}</p></header>${body}</article>`;
+  const kindTag = l.kind === 'embed' ? '<span class="lvl">Outside simulation</span>' : l.kind === 'guide' ? '<span class="lvl">Hands-on</span>' : l.kind === 'code' ? '<span class="lvl">Python</span>' : '';
+  const s = subj(l.subject_id), ask = STEM.state.user && (s.ai_enabled !== false || ui.isStaff()) && l.kind !== 'code' ? `<button class="linkbtn askBtn" data-lab="${E(l.id)}">✦ Ask the tutor about this lab</button>` : '';
+  return `<article class="sim" id="${E(l.id)}"><header><h3>${E(l.title)}</h3>${l.level ? `<span class="lvl">${E(l.level)}</span>` : ''}${kindTag}<span class="pbadge">${badge}</span><p>${E(l.blurb)}</p>${ask}</header>${body}</article>`;
 };
 
 const quizHTML = (id) => {
@@ -112,6 +115,10 @@ STEM.pages.push({
       const sim = STEM.SIMS.find(x => x.id === l.id), box = el.querySelector('#' + CSS.escape(l.id) + ' .simbody'); if (!sim || !box) return;
       try { active.push(sim.mount(box) || {}); } catch (e) { console.error(e); box.textContent = 'This simulation could not start.'; }
     });
+    labs.filter(l => l.kind === 'code').forEach(l => { const a = el.querySelector('#' + CSS.escape(l.id)); if (a) STEM.mountCodeLab(a, l); });
+    el.querySelectorAll('.askBtn').forEach(b => b.onclick = () => STEM.tutor.open({ subjectId: s.id, labId: b.dataset.lab }));
+    STEM.tutor.showFab(s.id);
+    if (s.id === 'coding') el.querySelector('.subhead .wrap').insertAdjacentHTML('beforeend', '<p><a class="btn y" href="#code">Open the Python playground</a></p>');
     el.querySelectorAll('.doneBtn').forEach(b => b.onclick = async () => {
       const lab = STEM.state.labs.find(l => l.id === b.closest('article').id);
       try { await store().trackLab(lab.id, lab.subject_id, 'guide', 60, 1); await store().trackLab(lab.id, lab.subject_id, 'guide', 60, 1); ui.toast('Marked as done. Well done!'); b.disabled = true; b.textContent = '✓ Recorded'; }

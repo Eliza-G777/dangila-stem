@@ -1,5 +1,5 @@
 -- =====================================================================
--- Danglila STEM Club — database
+-- Dangila STEM Club — database
 -- Run this ONCE in Supabase: Dashboard → SQL Editor → New query → paste → Run.
 -- Safe design: students can only see their own data; exam answers never
 -- reach the browser; marking and certificates happen inside the database.
@@ -413,5 +413,5 @@ Safety: wear goggles and do not taste anything.', '', 3)
 on conflict (id) do nothing;
 
 insert into public.news (date, tag, title, body, link, link_text)
-select current_date, 'News', 'Student accounts are here', 'Log in to track your lab progress, take exams and earn Danglila STEM certificates.', '#login', 'Log in'
+select current_date, 'News', 'Student accounts are here', 'Log in to track your lab progress, take exams and earn Dangila STEM certificates.', '#login', 'Log in'
 where not exists (select 1 from public.news);

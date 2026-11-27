@@ -136,7 +136,7 @@ STEM.pages.push({
         <label>Instructions for students<textarea name="description" rows="2" maxlength="600"></textarea></label>
         <label class="check"><input type="checkbox" name="published"> Published (students can see and take it)</label>
       </form>
-      <div class="row between"><h3 class="sec">Questions <small class="muted qcount"></small></h3><button class="btn ghost imp">Paste questions from text</button></div>
+      <div class="row between"><h3 class="sec">Questions <small class="muted qcount"></small></h3><div class="row"><button class="btn ghost gen">✦ Write questions with AI</button><button class="btn ghost imp">Paste questions from text</button></div></div>
       <ol class="qedit"></ol>
       <div class="row between"><button class="btn ghost addq">+ Add question</button><div class="row"><a class="btn ghost" href="#exams">Cancel</a><button class="btn y save">Save exam</button></div></div>
     </div></div>`;
@@ -177,6 +177,24 @@ STEM.pages.push({
         if (!add.length) { ui.toast('No questions found. Each needs a question line and at least 2 options.', 'bad'); return; }
         if (qs.length === 1 && !qs[0].question.trim()) qs.length = 0;
         qs.push(...add); draw(); m.close(); ui.toast(`${add.length} questions added`);
+      };
+    };
+    el.querySelector('.gen').onclick = () => {
+      const m = ui.modal(`<h3>Write questions with AI</h3><p class="note">The AI drafts multiple-choice questions. Always read and correct them before publishing.</p>
+        <label>Topic<input class="tp" maxlength="300" placeholder="e.g. acids, bases and the pH scale"></label>
+        <div class="grid2"><label>How many<input class="ct" type="number" min="1" max="15" value="5"></label><label>For grade<input class="gr" maxlength="30" value="${E(f.grade.value)}" placeholder="e.g. Grade 10"></label></div>
+        <div class="row end"><button class="btn ghost c">Cancel</button><button class="btn y go">Write questions</button></div><p class="formmsg"></p>`, { wide: true });
+      m.el.querySelector('.c').onclick = m.close;
+      m.el.querySelector('.go').onclick = async () => {
+        const topic = m.el.querySelector('.tp').value.trim(); if (!topic) { ui.toast('Type a topic', 'bad'); return; }
+        const b = m.el.querySelector('.go'); b.disabled = true; m.el.querySelector('.formmsg').textContent = 'Writing questions… this can take up to 30 seconds.';
+        try {
+          const r = await store().ai({ mode: 'questions', subject_id: f.subject_id.value, topic, count: +m.el.querySelector('.ct').value || 5, grade: m.el.querySelector('.gr').value });
+          if (!r.questions || !r.questions.length) throw new Error('No questions came back. Try a clearer topic.');
+          if (qs.length === 1 && !qs[0].question.trim()) qs.length = 0;
+          qs.push(...r.questions.map(q => ({ question: q.question, options: q.options, answer: q.answer, points: 1 }))); draw(); m.close();
+          ui.toast(`${r.questions.length} questions added. Please check them before publishing.`);
+        } catch (e) { b.disabled = false; m.el.querySelector('.formmsg').textContent = ui.err(e); }
       };
     };
     el.querySelector('.save').onclick = async () => {

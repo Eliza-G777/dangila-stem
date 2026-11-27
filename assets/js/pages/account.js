@@ -11,10 +11,11 @@ STEM.pages.push({
     el.innerHTML = `<div class="band loginband"><div class="wrap narrow">
       <form class="card login" autocomplete="on">
         <h2>Log in</h2><p class="note">Use the username and password your teacher gave you.</p>
-        <label>Username<input name="u" required autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+        <label>Username <small class="muted">(or your full login email)</small><input name="u" required autocomplete="username" autocapitalize="none" spellcheck="false"></label>
         <label>Password<input name="p" type="password" required autocomplete="current-password"></label>
         <button class="btn y" type="submit">Log in</button><p class="formmsg" aria-live="polite"></p>
         <p class="note">Forgot your password? Ask your teacher to reset it.</p>
+        <details class="diag"><summary>Login help (for the admin)</summary><div class="diagout note">Checking…</div></details>
       </form>
       ${demo ? `<div class="card demohelp"><h3>Demo accounts</h3><p class="note">This site is in demo mode, so data is saved only in this browser. Try each role:</p>
         <div class="row">${[['elizabeth', 'admin123', 'Admin'], ['teacher', 'teacher123', 'Teacher'], ['abebe', 'student123', 'Student']].map(([u, p, r]) => `<button class="btn ghost quick" data-u="${u}" data-p="${p}">${r}: ${u}</button>`).join('')}</div></div>` : ''}
@@ -23,9 +24,26 @@ STEM.pages.push({
     const go = async (u, p) => {
       msg.textContent = 'Logging in…';
       try { const me = await store().signIn(u, p); ui.toast(`Welcome, ${me.full_name || me.username}`); location.hash = 'dashboard'; }
-      catch (e) { msg.textContent = ui.err(e); }
+      catch (e) { msg.textContent = ui.err(e); if (el.querySelector('.diag').open) showDiag(); }
     };
     f.onsubmit = e => { e.preventDefault(); go(f.u.value, f.p.value); };
+    const showDiag = async () => {
+      const box = el.querySelector('.diagout'); if (!box) return;
+      let d; try { d = await store().diag(); } catch (e) { d = { error: ui.err(e) }; }
+      const typed = (f.u.value || 'elizabeth').trim().toLowerCase();
+      const L = STEM.lastLogin || {};
+      box.innerHTML = `<table class="diagt"><tbody>
+        <tr><td>Mode</td><td><b>${E(d.mode || '?')}</b>${d.mode === 'demo' ? ' ← the keys in config.js are empty, so real accounts cannot work' : ''}</td></tr>
+        <tr><td>Supabase project</td><td>${E(d.project || '')}</td></tr>
+        <tr><td>anon key format</td><td>${d.mode === 'live' ? (d.keyLooksRight ? 'looks right' : '<b>looks wrong</b>: copy the anon public key again') : '—'}</td></tr>
+        <tr><td>Database tables</td><td>${d.mode !== 'live' ? '—' : d.error ? '<b>Problem:</b> ' + E(d.error) + (/subjects/.test(d.error) ? ' ← run supabase/schema.sql' : '') : d.subjects ? `OK (${d.subjects} subjects found)` : '<b>No subjects found</b> ← run supabase/schema.sql'}</td></tr>
+        <tr><td>loginDomain</td><td>${E(d.loginDomain || '')}</td></tr>
+        <tr><td>Email the site will try</td><td><code>${E(typed.includes('@') ? typed : typed + '@' + (d.loginDomain || ''))}</code> ← must match the user's email in Supabase exactly</td></tr>
+        ${L.email ? `<tr><td>Last attempt</td><td><code>${E(L.email)}</code>: ${E(L.error || 'no error')}</td></tr>` : ''}
+      </tbody></table>`;
+    };
+    el.querySelector('.diag').addEventListener('toggle', e => { if (e.target.open) showDiag(); });
+    f.u.addEventListener('input', () => { if (el.querySelector('.diag').open) showDiag(); });
     el.querySelectorAll('.quick').forEach(b => b.onclick = () => go(b.dataset.u, b.dataset.p));
   }
 });
@@ -100,7 +118,7 @@ STEM.pages.push({
 STEM.pages.push({
   name: 'certificates', match: r => r === 'certificates' ? {} : null, roles: ['student', 'teacher', 'admin'],
   async render(el) {
-    el.innerHTML = ui.band('My certificates', 'Earn Danglila STEM certificates by completing labs and passing exams.') + `<div class="band"><div class="wrap">${ui.loading}</div></div>`;
+    el.innerHTML = ui.band('My certificates', 'Earn Dangila STEM certificates by completing labs and passing exams.') + `<div class="band"><div class="wrap">${ui.loading}</div></div>`;
     let certs = [], status = [];
     try { certs = await store().claimCertificates(); status = await store().certStatus(); } catch (e) { el.querySelector('.band:last-child .wrap').innerHTML = `<p class="empty">${E(ui.err(e))}</p>`; return; }
     const L = STEM.LEVELS;
@@ -126,7 +144,7 @@ const certHTML = (c, name) => {
       <p class="cto">awarded to</p><p class="cname">${E(name)}</p>
       <p class="crule">for meeting the club standard: ${E(rule.charAt(0).toLowerCase() + rule.slice(1))}.</p>
       <div class="cfoot"><div><b>${fmtDate(c.issued_at)}</b><small>Date issued</small></div>
-        <div class="cseal"><svg viewBox="0 0 120 120"><defs><path id="ring" d="M60 60 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0"/></defs><circle cx="60" cy="60" r="56" fill="var(--lc)"/><circle cx="60" cy="60" r="48" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="2 3"/><text font-size="9.5" fill="#fff" letter-spacing="2"><textPath href="#ring">DANGLILA STEM CLUB · ${E(lvl.toUpperCase())} ·</textPath></text><text x="60" y="68" text-anchor="middle" font-size="26" font-weight="700" fill="#fff">${c.subject_id === 'all' ? '★' : c.level}</text></svg></div>
+        <div class="cseal"><svg viewBox="0 0 120 120"><defs><path id="ring" d="M60 60 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0"/></defs><circle cx="60" cy="60" r="56" fill="var(--lc)"/><circle cx="60" cy="60" r="48" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="2 3"/><text font-size="9.5" fill="#fff" letter-spacing="2"><textPath href="#ring">DANGILA STEM CLUB · ${E(lvl.toUpperCase())} ·</textPath></text><text x="60" y="68" text-anchor="middle" font-size="26" font-weight="700" fill="#fff">${c.subject_id === 'all' ? '★' : c.level}</text></svg></div>
         <div><b>${E(c.code)}</b><small>Check at ${E(location.host || 'the club website')}/#verify</small></div></div>
     </div></div>`;
 };
@@ -149,7 +167,7 @@ STEM.pages.push({
 STEM.pages.push({
   name: 'verify', match: r => r === 'verify' ? {} : null,
   render(el) {
-    el.innerHTML = ui.band('Check a certificate', 'Every Danglila STEM certificate has a code. Enter it to confirm it is real.') + `<div class="band"><div class="wrap narrow">
+    el.innerHTML = ui.band('Check a certificate', 'Every Dangila STEM certificate has a code. Enter it to confirm it is real.') + `<div class="band"><div class="wrap narrow">
       <form class="card"><label>Certificate code<input name="c" required placeholder="DSC-CHEM-2-AB12CD" autocapitalize="characters" spellcheck="false"></label><button class="btn y" type="submit">Check</button></form><div class="vres"></div></div></div>`;
     const f = el.querySelector('form');
     f.onsubmit = async e => {

@@ -6,7 +6,7 @@ STEM.onLeave = STEM.onLeave || [];
 /* ---------- Menus ---------- */
 STEM.renderNav = () => {
   const u = STEM.state.user;
-  $('#nav').innerHTML = `<a href="#home">Home</a>` + STEM.state.subjects.filter(s => s.published !== false).map(s => `<a href="#${E(s.id)}"><i style="background:${E(s.color)}"></i>${E(s.name)}</a>`).join('') + `<a href="#club">Club</a>`;
+  $('#nav').innerHTML = `<a href="#home">Home</a>` + STEM.state.subjects.filter(s => s.published !== false).map(s => `<a href="#${E(s.id)}"><i style="background:${E(s.color)}"></i>${E(s.name)}</a>`).join('') + `<a href="#code">Playground</a><a href="#club">Club</a>`;
   $('#acctBtn').innerHTML = u ? `<a class="btn y sm" href="#dashboard">${E((u.full_name || u.username).split(' ')[0])}</a>` : `<a class="btn y sm" href="#login">Log in</a>`;
   const links = !u ? [] : u.role === 'student'
     ? [['dashboard', 'My progress'], ['exams', 'Exams'], ['certificates', 'Certificates']]
@@ -41,6 +41,7 @@ STEM.route = async (opts = {}) => {
   const no = ++routeNo;
   STEM.onLeave.forEach(f => { try { f(); } catch (e) {} });
   STEM.tracker.stop(); STEM.activeSims = [];
+  if (STEM.tutor) STEM.tutor.hideAll();
   if (!opts.keepModal) document.querySelectorAll('.modal').forEach(m => m.remove());
   const r = decodeURIComponent((location.hash || '#home').slice(1)) || 'home';
   const u = STEM.state.user;

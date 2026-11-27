@@ -46,7 +46,7 @@ const ui = STEM.ui = {
   },
   download(name, text, type = 'text/csv') {
     try {
-      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + text], { type })); a.download = name;
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([(type.includes('csv') ? '\ufeff' : '') + text], { type })); a.download = name;
       document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
     } catch (e) { ui.copy(text); }
   },

@@ -13,7 +13,7 @@ const levelFor = s => { let l = 0; if (s.labs_total > 0 && s.labs_opened >= s.la
 
 /* =================================================================== DEMO */
 function demoStore() {
-  const KEY = 'dscDemoDB_v1', SKEY = 'dscDemoSession';
+  const KEY = 'dscDemoDB_v3', SKEY = 'dscDemoSession';
   let db;
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
   const code = (sub, l) => 'DSC-' + (sub === 'all' ? 'STEM-S' : sub.slice(0, 4).toUpperCase() + '-' + l) + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -22,6 +22,8 @@ function demoStore() {
     const subjects = STEM.DEFAULT_SUBJECTS.map((s, i) => ({ ...s, position: i + 1, published: true }));
     const labs = STEM.SIMS.map((x, i) => ({ id: x.id, subject_id: x.subject, kind: 'builtin', title: x.title, level: x.level, blurb: x.blurb, instructions: '', embed_url: '', position: i + 1, published: true }));
     labs.push({ id: 'phet-circuit-kit', subject_id: 'electricity', kind: 'embed', title: 'Circuit construction kit (PhET)', level: 'Grade 9–12', blurb: 'Build any circuit you like with wires, batteries, bulbs and switches. A free simulation from the University of Colorado.', instructions: 'Build a circuit with one battery and two bulbs in series. Then rebuild it in parallel. Which bulbs are brighter, and why?', embed_url: 'https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html', position: 30, published: true });
+    subjects.push({ id: 'coding', name: 'Coding', am: 'ፕሮግራሚንግ', color: '#0e8a8a', description: 'Write real Python in your browser: solve science and maths problems with code, and get your work checked straight away.', position: 5, published: true, ai_enabled: true, ai_instructions: '' });
+    STEM.SEED_CODE_LABS.forEach((l, i) => labs.push({ ...l, subject_id: 'coding', kind: 'code', embed_url: '', position: i + 1, published: true }));
     labs.push({ id: 'hands-on-fizz', subject_id: 'chemistry', kind: 'guide', title: 'Hands-on: vinegar and baking soda', level: 'Grade 9', blurb: 'A safe real experiment to do in class after the reaction mixer.', instructions: 'You need: vinegar, baking soda, a clear cup, a spoon, a balloon and a small bottle.\n1. Put two spoons of baking soda in the cup.\n2. Predict what will happen when you add vinegar. Write it down.\n3. Slowly pour in half a cup of vinegar and watch.\n4. Now put baking soda inside a balloon, vinegar in the bottle, and stretch the balloon over the bottle neck.\n5. Lift the balloon so the powder falls in. What fills the balloon?\nSafety: wear goggles and do not taste anything.', embed_url: '', position: 30, published: true });
     const U = (username, password, full_name, role, grade) => ({ id: uid(), username, password, full_name, role, grade, created_at: nowISO() });
     const users = [U('elizabeth', 'admin123', 'Elizabeth Genetu', 'admin', ''), U('teacher', 'teacher123', 'Demo Teacher', 'teacher', ''),
@@ -55,8 +57,8 @@ function demoStore() {
     P(meron, 'graph-transformer', 'math', 180, 40);
     const A = (u, exam, pct) => { const qs = questions.filter(q => q.exam_id === exam); const max = qs.reduce((s, q) => s + q.points, 0); const score = Math.round(max * pct / 100); let left = score; const detail = qs.map(q => { const ok = left >= q.points; if (ok) left -= q.points; return { id: q.id, chosen: ok ? q.answer : (q.answer + 1) % q.options.length, correct: ok }; }); attempts.push({ id: uid(), exam_id: exam, user_id: u.id, answers: {}, detail, score, max_score: max, percent: Math.round(1000 * score / max) / 10, passed: 100 * score / max >= 60, started_at: nowISO(), submitted_at: new Date(Date.now() - Math.random() * 4 * 864e5).toISOString() }); };
     A(abebe, chem, 83); A(hana, chem, 50); A(dawit, elec, 100); A(meron, chem, 66);
-    return { subjects, labs, news: [
-      { id: uid(), date: new Date().toISOString().slice(0, 10), tag: 'News', title: 'Student accounts are here', body: 'Log in to track your lab progress, take exams and earn Danglila STEM certificates.', link: '#login', link_text: 'Log in' },
+    return { settings: { ai: { enabled: true, student_daily: 20, teacher_daily: 100 } }, aiUsage: [], subjects, labs, news: [
+      { id: uid(), date: new Date().toISOString().slice(0, 10), tag: 'News', title: 'Student accounts are here', body: 'Log in to track your lab progress, take exams and earn Dangila STEM certificates.', link: '#login', link_text: 'Log in' },
       { id: uid(), date: new Date(Date.now() + 864e5).toISOString().slice(0, 10), tag: 'Sample', title: 'Weekly club session (sample notice: edit this)', body: 'Replace this with your real meeting day, time and room.', link: '#chemistry', link_text: 'Open the chemistry lab' }],
       users, progress, exams, questions, attempts, certificates: [] };
   }
@@ -87,11 +89,13 @@ function demoStore() {
     user: () => pub(me),
     onChange: f => listeners.push(f),
     async signIn(username, password) {
-      const u = db.users.find(x => x.username === String(username).trim().toLowerCase() && x.password === password);
-      if (!u) throw new Error('Wrong username or password');
+      const name = String(username).trim().toLowerCase().split('@')[0];
+      const u = db.users.find(x => x.username === name && x.password === password);
+      if (!u) throw new Error('Wrong username or password. This site is still in DEMO mode, so only the demo accounts below work. To use your real account, put your Supabase keys in assets/js/config.js (see SETUP.md, step 3).');
       me = u; try { localStorage.setItem(SKEY, u.id); } catch (e) {} emit(pub(me)); return pub(me);
     },
     async signOut() { me = null; try { localStorage.removeItem(SKEY); } catch (e) {} emit(null); },
+    async diag() { return { mode: 'demo', project: '(none: supabaseUrl / supabaseAnonKey in config.js are empty)', loginDomain: CFG.loginDomain, keyLooksRight: false, subjects: null, error: '' }; },
     resetDemo() { db = seed(); save(); me = null; try { localStorage.removeItem(SKEY); } catch (e) {} emit(null); },
 
     getSubjects: () => ok(db.subjects.filter(s => s.published || isStaff()).sort((a, b) => a.position - b.position)),
@@ -113,6 +117,16 @@ function demoStore() {
       save(); return p;
     }),
     myProgress: () => run(() => { need(); return db.progress.filter(p => p.user_id === me.id); }),
+    completeCodeLab: lab => run(() => {
+      need(); const l = db.labs.find(x => x.id === lab && x.kind === 'code'); if (!l) throw new Error('Not a coding lab');
+      let p = db.progress.find(x => x.user_id === me.id && x.lab_id === lab);
+      if (!p) { p = { user_id: me.id, lab_id: lab, subject_id: l.subject_id, seconds: 0, interactions: 0, first_at: nowISO() }; db.progress.push(p); }
+      p.completed = true; p.interactions++; p.last_at = nowISO(); save(); return p;
+    }),
+    getSettings: () => run(() => db.settings || {}),
+    saveSettings: (key, value) => run(() => { need('admin'); db.settings = { ...(db.settings || {}), [key]: value }; save(); }),
+    aiUsage: () => run(() => { need('staff'); return []; }),
+    ai: () => Promise.reject(new Error('The AI tutor works on the live site once it is set up (see SETUP.md). In demo mode there is no AI connection.')),
 
     listExams: () => run(() => { need(); return db.exams.filter(e => e.published || isStaff()).map(e => ({ ...e, question_count: db.questions.filter(q => q.exam_id === e.id).length })).sort((a, b) => b.created_at.localeCompare(a.created_at)); }),
     getExamForEdit: id => run(() => { need('staff'); return { exam: db.exams.find(e => e.id === id), questions: db.questions.filter(q => q.exam_id === id).sort((a, b) => a.position - b.position) }; }),
@@ -221,12 +235,21 @@ function liveStore() {
     user: () => me,
     onChange: f => listeners.push(f),
     async signIn(username, password) {
-      const email = `${String(username).trim().toLowerCase()}@${CFG.loginDomain}`;
+      const raw = String(username).trim().toLowerCase(), email = raw.includes('@') ? raw : `${raw}@${CFG.loginDomain}`;
+      STEM.lastLogin = { email, error: '' };
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) throw new Error(/invalid/i.test(error.message) ? 'Wrong username or password' : error.message);
-      await loadMe(data.session); emit(me); return me;
+      if (error) { STEM.lastLogin.error = error.message; throw new Error(/invalid/i.test(error.message) ? `Wrong username or password (tried ${email})` : error.message); }
+      await loadMe(data.session);
+      if (!me) { STEM.lastLogin.error = 'Logged in, but no profile row was found. Was supabase/schema.sql run BEFORE this user was created?'; await sb.auth.signOut(); throw new Error(STEM.lastLogin.error); }
+      emit(me); return me;
     },
     async signOut() { await sb.auth.signOut(); me = null; emit(null); },
+    async diag() {
+      const out = { mode: 'live', project: '', loginDomain: CFG.loginDomain, keyLooksRight: /^eyJ/.test(CFG.supabaseAnonKey || '') || /^sb_publishable_/.test(CFG.supabaseAnonKey || ''), subjects: null, error: '' };
+      try { out.project = new URL(CFG.supabaseUrl).host; } catch (e) { out.project = 'NOT A VALID URL: ' + CFG.supabaseUrl; }
+      try { const { data, error } = await sb.from('subjects').select('id'); if (error) out.error = error.message; else out.subjects = data.length; } catch (e) { out.error = String(e.message || e); }
+      return out;
+    },
 
     getSubjects: () => q(sb.from('subjects').select('*').order('position')),
     saveSubject: s => q(sb.from('subjects').upsert(s)),
@@ -240,6 +263,19 @@ function liveStore() {
 
     trackLab: (lab, subject, kind, secs, inter) => rpc('track_lab', { p_lab: lab, p_subject: subject, p_kind: kind, p_seconds: secs, p_interactions: inter }),
     myProgress: () => q(sb.from('lab_progress').select('*').eq('user_id', me.id)),
+    completeCodeLab: lab => rpc('complete_code_lab', { p_lab: lab }),
+    async getSettings() { const rows = await q(sb.from('app_settings').select('*')); return Object.fromEntries(rows.map(r => [r.key, r.value])); },
+    saveSettings: (key, value) => q(sb.from('app_settings').upsert({ key, value })),
+    aiUsage: () => q(sb.from('ai_usage').select('*').eq('day', new Date().toISOString().slice(0, 10))),
+    async ai(body) {
+      const { data } = await sb.auth.getSession();
+      let r;
+      try { r = await fetch(CFG.tutorApi, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (data.session ? data.session.access_token : '') }, body: JSON.stringify(body) }); }
+      catch (e) { throw new Error('Could not reach the AI tutor. Check your internet connection.'); }
+      const out = await r.json().catch(() => ({ error: 'The AI tutor did not answer. Please try again.' }));
+      if (!r.ok || out.error) throw new Error(out.error || 'The AI tutor had a problem.');
+      return out;
+    },
 
     async listExams() {
       const exams = await q(sb.from('exams').select('*').order('created_at', { ascending: false }));

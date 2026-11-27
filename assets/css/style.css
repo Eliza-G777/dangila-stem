@@ -271,3 +271,54 @@ label.inline{display:flex;align-items:center;gap:8px;font-weight:500}label.inlin
 @media(max-width:600px){.tablewrap{border:0;overflow:visible}.stack tr{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;padding:8px 12px}.stack td.num{text-align:start}.stack td .meter{width:100%}.stack tbody{display:grid}}
 .certificate{margin-inline:auto}
 @media(max-width:600px){table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:7.5em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7em;margin-inline-start:-7.5em;color:var(--mut);font-size:13px;white-space:normal}.stack td:empty{display:none}}
+
+/* =================== Phase 2: code editor, console, tutor =================== */
+.mono,.ed textarea,.console,pre.tcode{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace}
+textarea.mono{font-size:14px!important;line-height:1.5}
+.codepanel{display:grid;gap:10px}
+.ed{display:grid;grid-template-columns:auto minmax(0,1fr);border:2px solid var(--line);border-radius:12px;overflow:hidden;background:#0f1526;color:#e6ebf7}
+.ed:focus-within{border-color:var(--c,var(--blue))}
+.ed .gutter{padding:12px 8px 12px 12px;text-align:end;color:#6c7895;font:14px/22px ui-monospace,Menlo,Consolas,monospace;overflow:hidden;user-select:none;background:#0b101d}
+.ed .gutter span{display:block}
+.ed textarea{border:0;outline:0;resize:none;background:transparent;color:inherit;padding:12px;font-size:14px;line-height:22px;tab-size:4;white-space:pre;overflow:auto;width:100%;min-height:220px}
+.coderow{align-items:center}.coderow .kbd{margin-inline-start:auto;font-size:13px}
+.inbox summary{cursor:pointer;font-size:15px;padding:6px 0}.inbox textarea{width:100%;font:14px/1.5 ui-monospace,Menlo,monospace;border:2px solid var(--line);border-radius:10px;padding:8px;background:var(--glass);color:var(--ink)}
+.console{margin:0;min-height:60px;max-height:320px;overflow:auto;background:light-dark(#f4f6fb,#0b101d);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.console:empty::before{content:attr(data-status);color:var(--mut)}
+.console:not(:empty)[data-status]:not([data-status=""])::after{content:"\A" attr(data-status);color:var(--mut)}
+.console:empty[data-status=""]::before{content:"Output appears here."}
+.console .err{color:var(--red)}.console .muted{color:var(--mut)}
+.plots{display:flex;flex-wrap:wrap;gap:10px}.plots img{max-width:100%;border-radius:10px;border:1px solid var(--line);background:#fff}
+.checks{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.checks li{padding:8px 12px;border-radius:10px;font-size:15px}.checks li.ok{background:light-dark(#e8f6ee,#13301f);color:light-dark(#1d6b3e,#8fe0b0)}.checks li.bad{background:light-dark(#fdecea,#3a1714);color:light-dark(#a3271c,#ff9a8f)}
+.codepanel.big .ed textarea{min-height:380px}
+.askBtn{padding:6px 0;min-height:36px;font-size:15px;color:var(--c,var(--blue));font-weight:500}
+.sim>header .askBtn{flex-basis:100%;text-align:start}
+.fab{position:fixed;right:max(16px,3vw);bottom:20px;z-index:40;font:inherit;font-weight:600;font-size:15px;border:0;border-radius:99px;padding:14px 20px;background:var(--c,var(--blue));color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer;min-height:48px}
+.fab span{margin-inline-end:6px}
+.tutor{position:fixed;right:max(12px,2vw);bottom:12px;z-index:45;width:min(420px,calc(100vw - 24px));height:min(640px,calc(100vh - 24px));background:var(--bg);color:var(--ink);border-radius:18px;box-shadow:0 16px 48px rgba(0,0,0,.3);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)}
+.tutor header{display:flex;align-items:center;gap:8px;padding:10px 6px 10px 16px;background:var(--c,var(--blue));color:#fff}
+.tutor header div{margin-inline-end:auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tutor header small{opacity:.9}
+.tutor .tuse{font-size:12px;opacity:.9}
+.tutor .x{width:44px;height:44px;border:0;background:none;color:#fff;font-size:26px;cursor:pointer}
+.tmsgs{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.tmsg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.tmsg.bot{background:var(--card);align-self:flex-start;border-bottom-left-radius:4px}
+.tmsg.me{background:var(--c,var(--blue));color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.tmsg.err{background:light-dark(#fdecea,#3a1714);color:light-dark(#a3271c,#ff9a8f)}
+.tmsg ul{margin:4px 0;padding-inline-start:1.2em}.tmsg code{background:rgba(0,0,0,.08);padding:1px 4px;border-radius:4px}
+pre.tcode{background:#0f1526;color:#e6ebf7;padding:8px 10px;border-radius:8px;font-size:13px;margin:6px 0;white-space:pre-wrap}
+.thinking{display:flex;gap:4px}.thinking i{width:8px;height:8px;border-radius:50%;background:var(--mut);animation:blink 1s infinite}.thinking i:nth-child(2){animation-delay:.2s}.thinking i:nth-child(3){animation-delay:.4s}
+@keyframes blink{50%{opacity:.25}}
+.tchips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 8px}.tchips button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--glass);color:var(--ink);border-radius:99px;padding:6px 10px;cursor:pointer;min-height:34px}
+.tform{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line)}
+.tform textarea{flex:1;font:inherit;font-size:16px;border:2px solid var(--line);border-radius:12px;padding:8px 10px;resize:none;background:var(--glass);color:var(--ink)}
+.tnote{font-size:12px;color:var(--mut);margin:0;padding:0 14px 10px}.tnote .linkbtn{font-size:12px;min-height:0;padding:0 4px}
+@media(max-width:600px){.tutor{right:0;bottom:0;width:100vw;height:100dvh;border-radius:0}.fab{bottom:14px;right:14px}.coderow .kbd{display:none}}
+@media(prefers-reduced-motion:reduce){.thinking i{animation:none}}
+@media print{.fab,.tutor{display:none!important}}
+@media(min-width:901px){header.top .wrap{flex-wrap:nowrap}header.top nav.main{flex:1 1 auto;justify-content:flex-end}.brand{flex:none}}
+nav.main a{padding:10px 10px}
+.acct{position:static}
+.diag summary{cursor:pointer;font-size:14px;color:var(--mut);padding:4px 0}
+.diagt{font-size:13px}.diagt td{padding:5px 6px;vertical-align:top}.diagt td:first-child{color:var(--mut);white-space:nowrap}
