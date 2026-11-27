@@ -1,88 +1,59 @@
-# Going live: setup guide (about 30 minutes, once)
+# Going live: setup guide
 
-The site runs in **demo mode** until a database is connected. Demo mode saves everything in one browser only, which is good for trying things out but not for a real class. These steps connect it for real. You need three free accounts: **GitHub**, **Netlify** and **Supabase**.
+The site runs in **demo mode** until it is connected to a database. Demo mode saves everything in one browser only. You need three free accounts: **GitHub**, **Netlify** and **Supabase**.
+
+You never need to edit `assets/js/config.js`. All settings go into Netlify.
 
 ---
 
-## Step 1. Put the code on GitHub
+## 1. Put the code on GitHub
 
-1. On github.com create a new repository called `dangila-stem`.
-2. Click **Add file → Upload files**, drag in everything from this folder (including the `assets`, `content`, `netlify` and `supabase` folders) and click **Commit changes**.
+1. Use your repository (for example `dangila-stem`).
+2. Unzip the project, then **Add file → Upload files**, drag in **everything** from inside the folder, and **Commit changes**.
 
-## Step 2. Create the database (Supabase)
+## 2. Prepare the database (Supabase)
 
-1. Go to **supabase.com**, sign in with GitHub and click **New project**. Name it `dangila-stem`, choose a strong database password (save it somewhere safe) and pick the region closest to Ethiopia (for example *Frankfurt* or *Mumbai*).
-2. When it is ready, open **SQL Editor → New query**. Open the file `supabase/schema.sql`, copy all of it, paste it in, and click **Run**. You should see "Success".
-3. Open **Authentication → Sign In / Providers** (on some versions: **Authentication → Settings**):
-   - turn **off** "Allow new users to sign up" (only teachers create accounts),
-   - under **Email**, turn **off** "Confirm email".
-4. Create **your own admin account**: **Authentication → Users → Add user → Create new user**.
-   - Email: `elizabeth@dangila-stem.netlify.app` (your username, then `@dangila-stem.netlify.app`; no email is ever sent there)
-   - Password: choose one
-   - Tick **Auto Confirm User**.
-   The first account created becomes the **admin** automatically.
-5. Set your display name: back in **SQL Editor**, run
-   ```sql
-   update profiles set full_name = 'Elizabeth Genetu' where username = 'elizabeth';
-   ```
-6. Open **Project Settings → API** (or **Data API** and **API Keys**). Keep this page open; you need three values:
-   - **Project URL** (looks like `https://abcd1234.supabase.co`)
-   - **anon / public key**: safe to put in the website
-   - **service_role / secret key**: **secret**. Never put this in the website files or share it.
+1. In your Supabase project open **SQL Editor → New query**. Run these three files **in this order**, pasting each one in full and clicking **Run** (each should say "Success"):
+   1. `supabase/schema.sql`: accounts, labs, exams, certificates
+   2. `supabase/phase2.sql`: AI tutor and coding
+   3. `supabase/phase3.sql`: courses, assignments, AI Studio models
+   It is safe to run them again.
+2. **Authentication → Sign In / Providers**: turn **off** "Allow new users to sign up". Under **Email**, turn **off** "Confirm email".
+3. **Project Settings → API Keys → Legacy API keys** (and **Data API** for the URL): keep this page open for step 3.
 
-## Step 3. Connect the website to the database
+You do **not** need to create users in Supabase. The site does that.
 
-On GitHub, open `assets/js/config.js`, click the pencil (edit) icon and fill in:
+## 3. Netlify settings
 
-```js
-supabaseUrl: 'https://abcd1234.supabase.co',
-supabaseAnonKey: 'eyJhbGciOi...the anon public key...',
-```
+In Netlify, open your site **dangila-stem** → **Project configuration → Environment variables**. Add these five variables:
 
-Commit the change.
+| Key | Value | Secret? |
+|---|---|---|
+| `SUPABASE_URL` | Project URL, e.g. `https://abcd1234.supabase.co` (nothing after `.co`) | no |
+| `SUPABASE_ANON_KEY` | the **anon public** key (starts with `eyJ`) | no |
+| `SUPABASE_SERVICE_ROLE_KEY` | the **service_role** key (starts with `eyJ`) | **yes** |
+| `LOGIN_DOMAIN` | `dangila-stem.netlify.app` | no |
+| `SETUP_CODE` | a secret word you choose, e.g. `Tana-Lake-2026` | **yes** |
 
-## Step 4. Netlify
+Then:
+- **Project configuration → Build & deploy**: the repository is linked, the build command is empty, and the publish directory is `.`.
+- **Access & security → Visitor access**: turn **off** any team-login or password protection, so students can open the site.
+- **Deploys → Trigger deploy → Deploy site**, and wait for **Published**.
 
-1. Open your project **dangila-stem** on app.netlify.com.
-2. **Project configuration → Build & deploy → Link repository** and choose the GitHub repo. Leave the build command empty and set the publish directory to `.`.
-3. **Project configuration → Environment variables → Add a variable**, and add three:
-   | Key | Value |
-   |---|---|
-   | `SUPABASE_URL` | your Project URL |
-   | `SUPABASE_SERVICE_ROLE_KEY` | the **service_role** secret key (tick "Contains secret values") |
-   | `LOGIN_DOMAIN` | `dangila-stem.netlify.app` |
-4. **Project configuration → Access & security → Visitor access**: make sure the site is **not** password- or login-protected, so students can open it.
-5. **Deploys → Trigger deploy → Deploy site**.
-6. Optional: **Forms → Form notifications**, and add your email to hear about new members and experiment ideas.
+## 4. Check everything and create your admin account
 
-## Step 4b. Phase 2: AI tutor and coding lab
+1. Open **https://dangila-stem.netlify.app/#setup** (or click **Setup** at the bottom of any page).
+2. Every line should show a green ✓. Each red ✗ says exactly what to fix.
+3. Use the form **Create or repair the admin account**: enter your `SETUP_CODE`, username `elizabeth`, your name and a new password. If an old account is broken, the same form repairs it.
+4. Go to **Log in** and log in as `elizabeth`. The yellow "Demo mode" bar should be gone.
 
-1. **Database:** in Supabase **SQL Editor → New query**, paste all of `supabase/phase2.sql` and click **Run**. This adds the Coding subject with four exercises, AI settings and daily limits.
-2. **AI on Netlify:** nothing to install and no API key. Netlify's AI Gateway provides it, and the `package.json` file tells Netlify to install the small library the tutor needs.
-   - Your Netlify team must be on a **credit-based plan** (Free, Personal or Pro). Check under **Billing**.
-   - The AI only switches on **after the first production deploy**. Deploy once, then test.
-   - Each question uses a small number of credits. Watch them in **Billing → Usage**, and set daily limits in the site's **Admin → AI tutor** tab (20 per student and 100 per teacher to start).
-   - Optional: set an environment variable `AI_MODEL` to choose a different Claude model. The default is a fast, low-cost one.
-3. **Python:** nothing to set up. It downloads into each student's browser the first time (about 10 MB), so the first run on a slow connection can take a minute.
+## 5. Add people and try the features
 
-## Step 5. Try it
-
-1. Open https://dangila-stem.netlify.app and log in with your username (for example `elizabeth`) and password. The yellow "Demo mode" bar should be gone.
-2. **Admin → Users → Add teachers** to create teacher logins. Print or copy the slips.
-3. Teachers use **Students → Add students** to create student logins in bulk.
-4. Teachers build exams in **Exam builder** and tick **Published** when they are ready.
-5. Open a lab and press **Ask the tutor**. Ask something simple, such as "What is an acid?".
-6. Open **Coding**, press **Run** on the first exercise, then fix the code and press **Check my answer**.
-
-## Already set up with the old spelling "Danglila"?
-
-The site now uses **Dangila** everywhere, including the login domain `dangila-stem.netlify.app`.
-1. In Netlify → Environment variables, set `LOGIN_DOMAIN` to `dangila-stem.netlify.app`.
-2. In Supabase → Authentication → Users, if your account's email ends in `@danglila-stem.netlify.app`, delete it and create it again as `elizabeth@dangila-stem.netlify.app` (Auto Confirm ticked). Then run, in the SQL Editor:
-   ```sql
-   update profiles set role = 'admin', full_name = 'Elizabeth Genetu' where username = 'elizabeth';
-   update news set body = replace(body, 'Danglila', 'Dangila'), title = replace(title, 'Danglila', 'Dangila');
-   ```
+1. **Admin → Users → Add teachers**. Teachers use **Students → Add students** to create student logins and print the slips.
+2. **Courses**: open "Electricity basics", or build your own with **+ New course**.
+3. **Exam builder**: create and publish an exam.
+4. **AI tutor and AI Studio**: these need Netlify's AI Gateway, which switches on after a production deploy on a **credit-based plan** (Free, Personal or Pro; check under **Billing**). Set daily limits and allowed models in **Admin → AI tutor**.
+5. **Coding**: open the Coding lab and press **Run**. Python downloads (about 10 MB) the first time.
 
 ---
 
@@ -90,34 +61,38 @@ The site now uses **Dangila** everywhere, including the login domain `dangila-st
 
 | Task | Where |
 |---|---|
-| Add an outside simulation (PhET, GeoGebra…) or a hands-on guide | Admin → Labs → Add a lab |
-| Add a new subject (physics, Earth science…) | Admin → Subjects |
-| Hide, show or reorder labs | Admin → Labs |
+| Switch language English ↔ Amharic | **አማርኛ / English** button at the top |
+| Day or night mode | ☾ / ☀ button at the top |
+| Create a course with lessons, videos, labs, exams and assignments | Courses → + New course |
+| Mark assignments, see course progress | Course page → Progress report / an assignment |
+| Add a lab without code (PhET, GeoGebra, hands-on guide, Python exercise) | Admin → Labs → Add a lab |
+| Add a subject | Admin → Subjects |
 | Post a notice | Admin → Notices (teachers: Notices) |
-| Create, publish, copy an exam | Exam builder |
-| See class progress, download CSV | Students |
-| Exam results and question analysis | Exam builder → Results |
+| Create, publish or copy an exam; write questions with AI | Exam builder |
+| Class progress, CSV download | Students |
 | Reset a forgotten password | Students → the student → Reset password |
 | Make someone a teacher or admin | Admin → Users → Role |
-| Check a certificate is real | Footer → Check a certificate |
-| AI daily limits, switch the tutor off | Admin → AI tutor |
-| AI on or off for one subject, subject instructions for the tutor | Admin → Subjects → Edit |
-| Add a Python exercise with automatic checks | Admin → Labs → Add a lab → Coding exercise |
-| Draft exam questions with AI | Exam builder → Write questions with AI |
+| AI limits, models, AI on or off per subject | Admin → AI tutor, Admin → Subjects |
+| Locked out of the admin account | /#setup → Create or repair the admin account |
+| Check a certificate | Footer → Check a certificate |
+
+## Improving the Amharic
+
+All Amharic text is in `assets/js/i18n.js`, in the list called `AM`, as `'English on screen': 'Amharic'`. Edit any line on GitHub to improve a translation, or add new lines. Text people type (notices, course and lab titles) shows as it was written. To show something in both languages, write it in both.
 
 ## If something goes wrong
 
-- **"Wrong username or password" for everyone**: check that `loginDomain` in `config.js` and `LOGIN_DOMAIN` in Netlify are the same, and that "Confirm email" is off in Supabase.
-- **"The server is not set up yet" when adding students**: the Netlify environment variables are missing. Add them, then redeploy.
-- **Labs show but nothing saves**: `supabaseUrl` or `supabaseAnonKey` in `config.js` is wrong.
-- **"The AI service is not active yet"**: do one production deploy, and check the team is on a credit-based plan with AI features enabled.
-- **"You have used all … AI questions for today"**: raise the limit in Admin → AI tutor.
-- **Python never finishes loading**: the school's internet may be blocking cdn.jsdelivr.net. Try another network once; after that it loads from the browser cache.
-- **Backups**: Supabase → Database → Backups. On the free plan, also download CSVs from the Students page now and then.
+Open **/#setup** first: it checks every connection.
+- **Website mode: DEMO**: `SUPABASE_URL` or `SUPABASE_ANON_KEY` is missing in Netlify, or you didn't redeploy after adding them.
+- **"Wrong username or password"**: create or repair the admin on /#setup, then log in with that username and password.
+- **"The setup code is wrong"**: type exactly the `SETUP_CODE` value from Netlify (it is case-sensitive).
+- **"The AI service is not active yet"**: do one production deploy and check the plan has AI features.
+- **Python never finishes loading**: the network may block cdn.jsdelivr.net. Try another network once.
+- **Backups**: Supabase → Database → Backups. Also download CSVs from the Students page now and then.
 
 ## Keeping it safe
 
-- Students can only see their own progress and results. Teachers see everyone's.
-- Exam answers never reach students' browsers: marking happens inside the database.
-- Only the admin can change roles, add labs or delete accounts.
-- The service_role key lives only in Netlify's settings. If it ever leaks, create a new one in Supabase and update Netlify.
+- Students see only their own progress, results and submissions. Teachers see everyone's.
+- Exam answers never reach students' browsers. Students cannot give themselves grades.
+- The service_role key and SETUP_CODE live only in Netlify (marked secret). The /#setup page never shows keys, names or emails.
+- If a secret key leaks, create a new one in Supabase, update Netlify and redeploy.

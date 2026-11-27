@@ -2,7 +2,7 @@
 (() => {
 const ui = STEM.ui, { E, subj } = ui, store = () => STEM.store;
 const KEY = id => 'dscTutor_' + id;
-let state = { subjectId: null, labId: null, msgs: [] }, panel = null;
+let state = { subjectId: null, labId: null, context: null, msgs: [] }, panel = null;
 
 // safe, tiny formatting: escape first, then **bold**, `code`, ```blocks```, "- " lists
 const fmt = t => {
@@ -58,7 +58,7 @@ async function ask(q, codeCtx) {
   const form = panel.querySelector('.tform button'); form.disabled = true;
   try {
     const body = codeCtx ? { mode: 'code', subject_id: state.subjectId, lab_id: state.labId, code: codeCtx.code, output: codeCtx.output, question: q }
-      : { mode: 'tutor', subject_id: state.subjectId, lab_id: state.labId, messages: state.msgs.filter(m => !m.error).map(({ role, content }) => ({ role, content })) };
+      : { mode: 'tutor', subject_id: state.subjectId, lab_id: state.labId, context: state.context, messages: state.msgs.filter(m => !m.error).map(({ role, content }) => ({ role, content })) };
     const r = await store().ai(body);
     state.msgs.push({ role: 'assistant', content: r.reply });
     if (r.limit) panel.querySelector('.tuse').textContent = `${r.used}/${r.limit} today`;
@@ -67,13 +67,14 @@ async function ask(q, codeCtx) {
 }
 
 STEM.tutor = {
-  open({ subjectId, labId, code } = {}) {
+  open({ subjectId, labId, code, context } = {}) {
     if (!panel) build();
     if (!STEM.state.user) { ui.toast('Log in to use the AI tutor'); location.hash = 'login'; return; }
     const s = subjectId ? subj(subjectId) : null;
     if (s && !canUse(s)) { ui.toast(`The AI tutor is turned off for ${s.name}.`); return; }
     if (subjectId !== state.subjectId) state = { subjectId, labId: null, msgs: restore(subjectId) };
     if (labId !== undefined) state.labId = labId || null;
+    state.context = context || null;
     panel.hidden = false; this.fab.hidden = true; draw();
     if (code) ask(code.output && /Error|Traceback/.test(code.output) ? 'Why does my code give this error? Give me a hint to fix it.' : 'Can you check my code and give me a hint to improve it?', code);
     else panel.querySelector('textarea').focus();

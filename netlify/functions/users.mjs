@@ -9,8 +9,8 @@
 //   { action: "role",   user_id, role }        (admin only)
 //   { action: "delete", user_id }              (admin only)
 
-const SB_URL = process.env.SUPABASE_URL;
-const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SB_URL = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+const KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 const DOMAIN = process.env.LOGIN_DOMAIN || 'dangila-stem.netlify.app';
 
 const json = (body, status = 200) =>

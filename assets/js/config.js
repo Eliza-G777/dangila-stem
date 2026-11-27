@@ -2,9 +2,10 @@
    SITE SETTINGS — the only file you need to edit to go live.
    ===================================================================== */
 STEM.CONFIG = {
-  // From Supabase → Project Settings → API. Leave both empty to run in DEMO mode.
-  supabaseUrl: 'https://yvehjvylxnyudxlkoobt.supabase.co/rest/v1/',
-  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2ZWhqdnlseG55dWR4bGtvb2J0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU3MzE3NzcsImV4cCI6MjExMTMwNzc3N30._BTJWnPpXu1_xzgtOBJELJ783RnWy1CUtgzAOqHT0uA',        // the "anon public" key (safe to put here)
+  // Leave these two EMPTY: the site reads them from Netlify (SUPABASE_URL, SUPABASE_ANON_KEY).
+  // Only fill them in if you host the site somewhere other than Netlify. Empty everywhere = DEMO mode.
+  supabaseUrl: '',
+  supabaseAnonKey: '',        // the "anon public" key (safe to put here)
   loginDomain: 'dangila-stem.netlify.app', // must match LOGIN_DOMAIN in Netlify (usernames become name@this-domain)
   usersApi: '/api/users',      // the Netlify function that creates accounts
   tutorApi: '/api/tutor',      // the Netlify function for the AI tutor
@@ -55,4 +56,13 @@ STEM.SEED_CODE_LABS = [
     instructions: 'A prime number has exactly two factors: 1 and itself. 1 is not prime.\nFinish is_prime(n) so it returns True or False.\nHint: try dividing n by every number from 2 up to n − 1 (or up to √n to be faster).',
     starter_code: 'def is_prime(n):\n    # Return True if n is prime, otherwise False\n    return False\n\nprimes = [n for n in range(100) if is_prime(n)]\nprint(len(primes), "primes below 100:", primes)\n',
     tests: 'assert is_prime(2), "2 is prime"\nassert is_prime(13), "13 is prime"\nassert is_prime(97), "97 is prime"\nassert not is_prime(1), "1 is not prime"\nassert not is_prime(0), "0 is not prime"\nassert not is_prime(15), "15 = 3 × 5 is not prime"\nassert not is_prime(49), "49 = 7 × 7 is not prime"' }
+];
+
+/* AI models for AI Studio (demo mode and fallback). In live mode the admin edits this list in Admin → AI tutor.
+   Model names change over time: check Netlify's AI Gateway documentation for the current ones. */
+STEM.DEFAULT_AI_MODELS = [
+  { key: 'claude', label: 'Claude', provider: 'anthropic', model: 'claude-haiku-5-5', enabled: true, staff_only: false },
+  { key: 'gpt', label: 'ChatGPT', provider: 'openai', model: 'gpt-6-luna', enabled: true, staff_only: false },
+  { key: 'gemini', label: 'Gemini', provider: 'gemini', model: 'gemini-3.8-flash', enabled: true, staff_only: false },
+  { key: 'claude-pro', label: 'Claude (advanced)', provider: 'anthropic', model: 'claude-sonnet-5-5', enabled: true, staff_only: true }
 ];

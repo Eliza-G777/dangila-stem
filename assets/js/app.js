@@ -1,16 +1,19 @@
 /* Starts the site: menus, router, home page, notices, forms and the animation loop. Loaded last. */
 (async () => {
-const { $, readTheme } = STEM, ui = STEM.ui, { E } = ui, store = STEM.store;
+const { $, readTheme } = STEM, ui = STEM.ui, { E } = ui;
+STEM.configSource = await STEM.resolveConfig();
+STEM.store = STEM.makeStore();
+const store = STEM.store;
 STEM.onLeave = STEM.onLeave || [];
 
 /* ---------- Menus ---------- */
 STEM.renderNav = () => {
   const u = STEM.state.user;
-  $('#nav').innerHTML = `<a href="#home">Home</a>` + STEM.state.subjects.filter(s => s.published !== false).map(s => `<a href="#${E(s.id)}"><i style="background:${E(s.color)}"></i>${E(s.name)}</a>`).join('') + `<a href="#code">Playground</a><a href="#club">Club</a>`;
+  $('#nav').innerHTML = `<a href="#home">Home</a>` + STEM.state.subjects.filter(s => s.published !== false).map(s => `<a href="#${E(s.id)}"><i style="background:${E(s.color)}"></i>${E(s.name)}</a>`).join('') + `<a href="#club">Club</a>`;
   $('#acctBtn').innerHTML = u ? `<a class="btn y sm" href="#dashboard">${E((u.full_name || u.username).split(' ')[0])}</a>` : `<a class="btn y sm" href="#login">Log in</a>`;
   const links = !u ? [] : u.role === 'student'
-    ? [['dashboard', 'My progress'], ['exams', 'Exams'], ['certificates', 'Certificates']]
-    : [['dashboard', 'Overview'], ['students', 'Students'], ['exams', 'Exam builder'], ['admin', u.role === 'admin' ? 'Admin' : 'Notices']];
+    ? [['dashboard', 'My progress'], ['learn', 'Courses'], ['exams', 'Exams'], ['ai', 'AI Studio'], ['certificates', 'Certificates']]
+    : [['dashboard', 'Overview'], ['students', 'Students'], ['learn', 'Courses'], ['exams', 'Exam builder'], ['ai', 'AI Studio'], ['admin', u.role === 'admin' ? 'Admin' : 'Notices']];
   $('#acct').hidden = !u;
   $('#acct').innerHTML = u ? `<div class="wrap"><span class="who">${E(u.full_name || u.username)} <small>${E(u.role)}${u.grade ? ' · ' + E(u.grade) : ''}</small></span><nav>${links.map(([h, t]) => `<a href="#${h}">${t}</a>`).join('')}<button class="linkbtn out">Log out</button></nav></div>` : '';
   const out = $('#acct .out'); if (out) out.onclick = async () => { await store.signOut(); ui.toast('Logged out'); location.hash = 'home'; };
@@ -84,7 +87,11 @@ store.onChange(async u => {
   if (u) { const next = sessionStorage.getItem('dscNext'); if (next) { sessionStorage.removeItem('dscNext'); location.hash = next; } }
 });
 STEM.renderNav();
-STEM.route();
+document.querySelectorAll('.themebtn').forEach(b => b.onclick = () => STEM.theme.toggle());
+document.querySelectorAll('.langbtn').forEach(b => b.onclick = () => STEM.i18n.set(STEM.i18n.lang === 'am' ? 'en' : 'am'));
+STEM.theme.apply();
+await STEM.route();
+STEM.i18n.set(STEM.i18n.lang);
 
 /* ---------- Animation loop for the simulations ---------- */
 let last = 0;

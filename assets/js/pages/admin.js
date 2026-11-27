@@ -2,7 +2,7 @@
 (() => {
 const ui = STEM.ui, { E, subj, fmtDate } = ui, store = () => STEM.store;
 let tab = 'labs';
-STEM.store.onChange(() => { tab = 'labs'; });
+STEM.userListeners.push(() => { tab = 'labs'; });
 const slug = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
 const refresh = async () => { await ui.loadSiteData(); STEM.renderNav(); STEM.route({ keepScroll: true }); };
 
@@ -148,6 +148,29 @@ async function aiTab(el) {
     <div><h3>Today</h3><div class="stats"><div class="stat"><small>Questions asked today</small><b>${total}</b></div><div class="stat"><small>People using it</small><b>${usage.length}</b></div></div>
       ${ui.table([{ h: 'Name', v: u => E(who(u.user_id).full_name) }, { h: 'Role', v: u => E(who(u.user_id).role) }, { h: 'Questions', v: u => u.count, cls: 'num' }], [...usage].sort((a, b) => b.count - a.count).slice(0, 30), store().mode === 'demo' ? 'Usage appears here on the live site.' : 'No one has used the tutor today.')}
       <p class="note">Each question costs a small number of Netlify credits. Check your balance in Netlify → Billing. Lower the daily limits if credits run low.</p></div></div>`;
+  let models = JSON.parse(JSON.stringify(settings.ai_models || STEM.DEFAULT_AI_MODELS));
+  el.insertAdjacentHTML('beforeend', `<h3 class="sec">AI models in AI Studio</h3>
+    <p class="note">Students choose from these models in AI Studio. Netlify AI Gateway provides Anthropic (Claude), OpenAI (ChatGPT) and Google (Gemini) with no API keys. Model names change over time: check Netlify's AI Gateway documentation for current names. "Teachers only" hides a model from students, which is useful for more expensive models.</p>
+    <div class="mtable"></div><div class="row between"><button class="btn ghost addm">+ Add model</button><button class="btn y savem">Save models</button></div>`);
+  const drawM = () => {
+    el.querySelector('.mtable').innerHTML = `<div class="tablewrap"><table><thead><tr><th>Name shown</th><th>Provider</th><th>Model name</th><th>On</th><th>Teachers only</th><th></th></tr></thead><tbody>${models.map((m, i) => `<tr data-i="${i}">
+      <td><input class="ml" value="${E(m.label)}" aria-label="Name shown"></td>
+      <td><select class="mp" aria-label="Provider">${['anthropic', 'openai', 'gemini'].map(p => `<option ${p === m.provider ? 'selected' : ''}>${p}</option>`).join('')}</select></td>
+      <td><input class="mm mono" value="${E(m.model)}" aria-label="Model name"></td>
+      <td><input type="checkbox" class="me" ${m.enabled !== false ? 'checked' : ''} aria-label="On"></td>
+      <td><input type="checkbox" class="ms" ${m.staff_only ? 'checked' : ''} aria-label="Teachers only"></td>
+      <td><button class="btn ghost sm rmm">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
+    el.querySelectorAll('.mtable tr[data-i]').forEach(tr => { const m = models[+tr.dataset.i];
+      tr.querySelector('.ml').oninput = e => m.label = e.target.value; tr.querySelector('.mp').onchange = e => m.provider = e.target.value;
+      tr.querySelector('.mm').oninput = e => m.model = e.target.value.trim(); tr.querySelector('.me').onchange = e => m.enabled = e.target.checked;
+      tr.querySelector('.ms').onchange = e => m.staff_only = e.target.checked; tr.querySelector('.rmm').onclick = () => { models.splice(+tr.dataset.i, 1); drawM(); }; });
+  };
+  drawM();
+  el.querySelector('.addm').onclick = () => { models.push({ key: 'model-' + Date.now().toString(36), label: 'New model', provider: 'anthropic', model: '', enabled: true, staff_only: false }); drawM(); };
+  el.querySelector('.savem').onclick = async () => {
+    const clean = models.filter(m => m.label.trim() && m.model.trim()).map(m => ({ ...m, key: m.key || slug(m.label) }));
+    try { await store().saveSettings('ai_models', clean); ui.toast('Models saved'); } catch (e) { ui.toast(ui.err(e), 'bad'); }
+  };
   const f = el.querySelector('.aiform');
   f.onsubmit = async e => { e.preventDefault(); try { await store().saveSettings('ai', { enabled: f.enabled.checked, student_daily: Math.max(0, +f.student_daily.value || 0), teacher_daily: Math.max(0, +f.teacher_daily.value || 0) }); ui.toast('AI settings saved'); } catch (err) { ui.toast(ui.err(err), 'bad'); } };
 }

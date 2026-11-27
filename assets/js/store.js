@@ -7,13 +7,13 @@ const CFG = STEM.CONFIG;
 const COMPLETE_SECONDS = 120, COMPLETE_INTERACTIONS = 10;
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2));
 const nowISO = () => new Date().toISOString();
-const listeners = [];
+const listeners = STEM.userListeners = [];
 const emit = u => listeners.forEach(f => { try { f(u); } catch (e) { console.error(e); } });
 const levelFor = s => { let l = 0; if (s.labs_total > 0 && s.labs_opened >= s.labs_total) l = 1; if (l === 1 && s.labs_completed >= s.labs_total && s.exams_passed >= 1) l = 2; if (l === 2 && s.exams_passed >= 2 && s.avg_best >= 85) l = 3; return l; };
 
 /* =================================================================== DEMO */
 function demoStore() {
-  const KEY = 'dscDemoDB_v3', SKEY = 'dscDemoSession';
+  const KEY = 'dscDemoDB_v4', SKEY = 'dscDemoSession';
   let db;
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
   const code = (sub, l) => 'DSC-' + (sub === 'all' ? 'STEM-S' : sub.slice(0, 4).toUpperCase() + '-' + l) + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -57,7 +57,22 @@ function demoStore() {
     P(meron, 'graph-transformer', 'math', 180, 40);
     const A = (u, exam, pct) => { const qs = questions.filter(q => q.exam_id === exam); const max = qs.reduce((s, q) => s + q.points, 0); const score = Math.round(max * pct / 100); let left = score; const detail = qs.map(q => { const ok = left >= q.points; if (ok) left -= q.points; return { id: q.id, chosen: ok ? q.answer : (q.answer + 1) % q.options.length, correct: ok }; }); attempts.push({ id: uid(), exam_id: exam, user_id: u.id, answers: {}, detail, score, max_score: max, percent: Math.round(1000 * score / max) / 10, passed: 100 * score / max >= 60, started_at: nowISO(), submitted_at: new Date(Date.now() - Math.random() * 4 * 864e5).toISOString() }); };
     A(abebe, chem, 83); A(hana, chem, 50); A(dawit, elec, 100); A(meron, chem, 66);
-    return { settings: { ai: { enabled: true, student_daily: 20, teacher_daily: 100 } }, aiUsage: [], subjects, labs, news: [
+    const c1 = uid(), c2 = uid(), L = (course_id, position, title, body, lab_id = '', minutes = 10, exam_id = null) => ({ id: uid(), course_id, position, title, body, video_url: '', resources: '', lab_id, exam_id, minutes });
+    const courses = [
+      { id: c1, title: 'Electricity basics', subject_id: 'electricity', grade: 'Grade 9–10', description: 'Current, voltage and resistance in four short lessons, with simulations, a coding task, an assignment and an exam.', color: '#e9a400', published: true, position: 1, created_at: nowISO() },
+      { id: c2, title: 'Start coding with Python', subject_id: 'coding', grade: 'Grade 9', description: 'Your first steps in Python: variables, functions and loops, all in the browser.', color: '#0e8a8a', published: true, position: 2, created_at: nowISO() }];
+    const lessons = [
+      L(c1, 1, 'What is electric current?', 'Electric current is a flow of electric charge. In metal wires, the charges that move are tiny particles called electrons.\nWe measure current in amperes (A) with an ammeter.\nKey ideas:\n- A circuit must be a complete loop for current to flow.\n- A switch opens or closes the loop.\n- More current through a bulb makes it brighter.\nOpen the circuit builder and open and close the switch. Watch the electrons stop and start.', 'circuit-builder'),
+      L(c1, 2, 'Voltage and resistance: Ohm\'s law', 'Voltage (V, in volts) is the push that drives the current. Resistance (R, in ohms Ω) is how much a component resists the current.\nOhm\'s law links them: V = I × R, so I = V ÷ R.\nExample: a 12 V battery and a 4 Ω resistor give I = 12 ÷ 4 = 3 A.\nIn the Ohm\'s law lab, take at least three readings and find the mystery resistance from the graph.', 'ohms-law', 15),
+      L(c1, 3, 'Series and parallel circuits', 'In a series circuit there is one path: the same current flows through every bulb, and resistances add up.\nIn a parallel circuit each bulb has its own path: each gets the full battery voltage, and if one bulb breaks the others stay on.\nThat is why the lights in a house are connected in parallel.', 'circuit-builder', 15, elec),
+      L(c1, 4, 'Build it with code', 'Scientists and engineers use code to do calculations quickly.\nWrite a Python calculator for current and power in the coding exercise.', 'py-ohms-law', 15),
+      L(c2, 1, 'Your first program', 'A program is a list of instructions for the computer.\n1. Open the Python playground.\n2. Run the "Hello and input" example.\n3. Change the message and run it again.\nprint() shows text on the screen. input() asks the user a question.', '', 10),
+      L(c2, 2, 'Functions: the class average', 'A function is a named set of instructions that takes inputs and gives back a result.\nIn the exercise, finish the function average(marks). Use sum() and len().', 'py-average', 15),
+      L(c2, 3, 'Loops and prime numbers', 'A for loop repeats instructions. Use one to test whether a number can be divided by smaller numbers.', 'py-primes', 20)];
+    const assignments = [{ id: uid(), course_id: c1, position: 1, title: 'Electricity at home', instructions: 'Look at the electrical things in your home or school.\n1. Name three devices and say what they change electrical energy into.\n2. Are the lights in your home in series or in parallel? How do you know?\n3. Give one rule for using electricity safely.', due_date: null, points: 10, published: true, created_at: nowISO() }];
+    const lesson_progress = [lessons[0], lessons[1]].map(l => ({ user_id: abebe.id, lesson_id: l.id, course_id: c1, completed_at: nowISO() }));
+    const submissions = [{ id: uid(), assignment_id: assignments[0].id, user_id: hana.id, answer: '1. TV: light and sound. Iron: heat. Fan: movement.\n2. Parallel, because when one bulb breaks the others stay on.\n3. Never touch sockets with wet hands.', submitted_at: nowISO(), grade: null, feedback: '', graded_at: null }];
+    return { courses, lessons, lesson_progress, assignments, submissions, settings: { ai: { enabled: true, student_daily: 20, teacher_daily: 100 }, ai_models: STEM.DEFAULT_AI_MODELS }, aiUsage: [], subjects, labs, news: [
       { id: uid(), date: new Date().toISOString().slice(0, 10), tag: 'News', title: 'Student accounts are here', body: 'Log in to track your lab progress, take exams and earn Dangila STEM certificates.', link: '#login', link_text: 'Log in' },
       { id: uid(), date: new Date(Date.now() + 864e5).toISOString().slice(0, 10), tag: 'Sample', title: 'Weekly club session (sample notice: edit this)', body: 'Replace this with your real meeting day, time and room.', link: '#chemistry', link_text: 'Open the chemistry lab' }],
       users, progress, exams, questions, attempts, certificates: [] };
@@ -70,7 +85,7 @@ function demoStore() {
   const pub = u => u && ({ id: u.id, username: u.username, full_name: u.full_name, role: u.role, grade: u.grade, created_at: u.created_at });
   const need = r => { if (!me) throw new Error('Please log in'); if (r === 'staff' && !['teacher', 'admin'].includes(me.role)) throw new Error('Teachers only'); if (r === 'admin' && me.role !== 'admin') throw new Error('Admin only'); };
   const isStaff = () => me && ['teacher', 'admin'].includes(me.role);
-  const ok = v => Promise.resolve(JSON.parse(JSON.stringify(v)));
+  const ok = v => Promise.resolve(v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
   const run = f => { try { return ok(f()); } catch (e) { return Promise.reject(e); } };
   const status = userId => db.subjects.filter(s => s.published).sort((a, b) => a.position - b.position).map(s => {
     const labs = db.labs.filter(l => l.subject_id === s.id && l.published).map(l => l.id);
@@ -126,7 +141,40 @@ function demoStore() {
     getSettings: () => run(() => db.settings || {}),
     saveSettings: (key, value) => run(() => { need('admin'); db.settings = { ...(db.settings || {}), [key]: value }; save(); }),
     aiUsage: () => run(() => { need('staff'); return []; }),
-    ai: () => Promise.reject(new Error('The AI tutor works on the live site once it is set up (see SETUP.md). In demo mode there is no AI connection.')),
+    ai: () => Promise.reject(new Error('The AI works on the live site once it is set up (see SETUP.md). In demo mode there is no AI connection.')),
+    aiModels: () => ok((db.settings.ai_models || STEM.DEFAULT_AI_MODELS).filter(m => m.enabled !== false && (!m.staff_only || isStaff()))),
+
+    listCourses: () => run(() => { need(); return db.courses.filter(c => c.published || isStaff()).sort((a, b) => a.position - b.position); }),
+    getCourse: id => run(() => { need(); const course = db.courses.find(c => c.id === id && (c.published || isStaff())); if (!course) throw new Error('Course not found');
+      return { course, lessons: db.lessons.filter(l => l.course_id === id).sort((a, b) => a.position - b.position), assignments: db.assignments.filter(a => a.course_id === id && (a.published || isStaff())).sort((a, b) => a.position - b.position) }; }),
+    saveCourse: (course, lessons, assignments) => run(() => {
+      need('staff'); let id = course.id && db.courses.some(c => c.id === course.id) ? course.id : uid();
+      const fields = { title: course.title, subject_id: course.subject_id || '', grade: course.grade || '', description: course.description || '', color: course.color || '#1f3f99', published: !!course.published, position: course.position || 0 };
+      const i = db.courses.findIndex(c => c.id === id); if (i >= 0) db.courses[i] = { ...db.courses[i], ...fields }; else db.courses.push({ ...fields, id, created_at: nowISO() });
+      const ls = lessons.map((l, k) => ({ id: l.id || uid(), course_id: id, position: k + 1, title: l.title, body: l.body || '', video_url: l.video_url || '', resources: l.resources || '', lab_id: l.lab_id || '', exam_id: l.exam_id || null, minutes: +l.minutes || 10 }));
+      const keepL = new Set(ls.map(l => l.id));
+      db.lesson_progress = db.lesson_progress.filter(p => p.course_id !== id || keepL.has(p.lesson_id));
+      db.lessons = db.lessons.filter(l => l.course_id !== id).concat(ls);
+      const as = assignments.map((a, k) => ({ id: a.id || uid(), course_id: id, position: k + 1, title: a.title, instructions: a.instructions || '', due_date: a.due_date || null, points: +a.points || 10, published: a.published !== false, created_at: a.created_at || nowISO() }));
+      const keepA = new Set(as.map(a => a.id));
+      db.submissions = db.submissions.filter(s => { const a = db.assignments.find(x => x.id === s.assignment_id); return !a || a.course_id !== id || keepA.has(s.assignment_id); });
+      db.assignments = db.assignments.filter(a => a.course_id !== id).concat(as);
+      save(); return id;
+    }),
+    deleteCourse: id => run(() => { need('staff'); const ls = new Set(db.lessons.filter(l => l.course_id === id).map(l => l.id)), as = new Set(db.assignments.filter(a => a.course_id === id).map(a => a.id));
+      db.courses = db.courses.filter(c => c.id !== id); db.lessons = db.lessons.filter(l => !ls.has(l.id)); db.lesson_progress = db.lesson_progress.filter(p => !ls.has(p.lesson_id)); db.assignments = db.assignments.filter(a => !as.has(a.id)); db.submissions = db.submissions.filter(s => !as.has(s.assignment_id)); save(); }),
+    myLessonProgress: () => run(() => { need(); return db.lesson_progress.filter(p => p.user_id === me.id); }),
+    allLessonProgress: () => run(() => { need('staff'); return db.lesson_progress; }),
+    completeLesson: (lessonId, courseId) => run(() => { need(); if (!db.lesson_progress.some(p => p.user_id === me.id && p.lesson_id === lessonId)) db.lesson_progress.push({ user_id: me.id, lesson_id: lessonId, course_id: courseId, completed_at: nowISO() }); save(); }),
+    uncompleteLesson: lessonId => run(() => { need(); db.lesson_progress = db.lesson_progress.filter(p => !(p.user_id === me.id && p.lesson_id === lessonId)); save(); }),
+    getAssignment: id => run(() => { need(); const assignment = db.assignments.find(a => a.id === id && (a.published || isStaff())); if (!assignment) throw new Error('Assignment not found'); return { assignment, course: db.courses.find(c => c.id === assignment.course_id) }; }),
+    mySubmissions: () => run(() => { need(); return db.submissions.filter(s => s.user_id === me.id); }),
+    submissionsFor: aid => run(() => { need('staff'); return db.submissions.filter(s => s.assignment_id === aid); }),
+    allSubmissions: () => run(() => { need('staff'); return db.submissions; }),
+    submitAssignment: (aid, answer) => run(() => { need(); let s = db.submissions.find(x => x.assignment_id === aid && x.user_id === me.id);
+      if (s && s.grade != null) throw new Error('This assignment is already marked, so the answer cannot be changed.');
+      if (s) { s.answer = answer; s.submitted_at = nowISO(); } else db.submissions.push({ id: uid(), assignment_id: aid, user_id: me.id, answer, submitted_at: nowISO(), grade: null, feedback: '', graded_at: null }); save(); }),
+    gradeSubmission: (id, grade, feedback) => run(() => { need('staff'); const s = db.submissions.find(x => x.id === id); s.grade = grade; s.feedback = feedback; s.graded_at = nowISO(); s.graded_by = me.id; save(); }),
 
     listExams: () => run(() => { need(); return db.exams.filter(e => e.published || isStaff()).map(e => ({ ...e, question_count: db.questions.filter(q => q.exam_id === e.id).length })).sort((a, b) => b.created_at.localeCompare(a.created_at)); }),
     getExamForEdit: id => run(() => { need('staff'); return { exam: db.exams.find(e => e.id === id), questions: db.questions.filter(q => q.exam_id === id).sort((a, b) => a.position - b.position) }; }),
@@ -267,10 +315,35 @@ function liveStore() {
     async getSettings() { const rows = await q(sb.from('app_settings').select('*')); return Object.fromEntries(rows.map(r => [r.key, r.value])); },
     saveSettings: (key, value) => q(sb.from('app_settings').upsert({ key, value })),
     aiUsage: () => q(sb.from('ai_usage').select('*').eq('day', new Date().toISOString().slice(0, 10))),
+    async aiModels() { try { return (await this.ai({ mode: 'models' })).models; } catch (e) { return STEM.DEFAULT_AI_MODELS.filter(m => !m.staff_only); } },
+    listCourses: () => q(sb.from('courses').select('*').order('position')),
+    async getCourse(id) {
+      const [course] = await q(sb.from('courses').select('*').eq('id', id)); if (!course) throw new Error('Course not found');
+      const [lessons, assignments] = await Promise.all([q(sb.from('lessons').select('*').eq('course_id', id).order('position')), q(sb.from('assignments').select('*').eq('course_id', id).order('position'))]);
+      return { course, lessons, assignments };
+    },
+    saveCourse: (course, lessons, assignments) => rpc('save_course', { p_course: course, p_lessons: lessons, p_assignments: assignments }),
+    deleteCourse: id => q(sb.from('courses').delete().eq('id', id)),
+    myLessonProgress: () => q(sb.from('lesson_progress').select('*').eq('user_id', me.id)),
+    allLessonProgress: () => all(() => sb.from('lesson_progress').select('*')),
+    completeLesson: (lessonId, courseId) => q(sb.from('lesson_progress').upsert({ user_id: me.id, lesson_id: lessonId, course_id: courseId }, { onConflict: 'user_id,lesson_id', ignoreDuplicates: true })),
+    uncompleteLesson: lessonId => q(sb.from('lesson_progress').delete().eq('user_id', me.id).eq('lesson_id', lessonId)),
+    async getAssignment(id) {
+      const [assignment] = await q(sb.from('assignments').select('*').eq('id', id)); if (!assignment) throw new Error('Assignment not found');
+      const [course] = await q(sb.from('courses').select('*').eq('id', assignment.course_id)); return { assignment, course };
+    },
+    mySubmissions: () => q(sb.from('submissions').select('*').eq('user_id', me.id)),
+    submissionsFor: aid => q(sb.from('submissions').select('*').eq('assignment_id', aid)),
+    allSubmissions: () => all(() => sb.from('submissions').select('*')),
+    async submitAssignment(aid, answer) {
+      const { error } = await sb.from('submissions').upsert({ assignment_id: aid, user_id: me.id, answer }, { onConflict: 'assignment_id,user_id' });
+      if (error) throw new Error(/row-level|policy/i.test(error.message) ? 'This assignment is already marked, so the answer cannot be changed.' : error.message);
+    },
+    gradeSubmission: (id, grade, feedback) => q(sb.from('submissions').update({ grade, feedback }).eq('id', id)),
     async ai(body) {
       const { data } = await sb.auth.getSession();
       let r;
-      try { r = await fetch(CFG.tutorApi, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (data.session ? data.session.access_token : '') }, body: JSON.stringify(body) }); }
+      try { r = await fetch(CFG.tutorApi, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (data.session ? data.session.access_token : '') }, body: JSON.stringify({ lang: STEM.i18n ? STEM.i18n.lang : 'en', ...body }) }); }
       catch (e) { throw new Error('Could not reach the AI tutor. Check your internet connection.'); }
       const out = await r.json().catch(() => ({ error: 'The AI tutor did not answer. Please try again.' }));
       if (!r.ok || out.error) throw new Error(out.error || 'The AI tutor had a problem.');
@@ -319,7 +392,21 @@ function liveStore() {
   };
 }
 
-STEM.store = CFG.supabaseUrl && CFG.supabaseAnonKey ? liveStore() : demoStore();
+// Settings come from config.js, or (preferred) from Netlify via /api/config, so config.js can stay empty.
+STEM.resolveConfig = async () => {
+  if (CFG.supabaseUrl && CFG.supabaseAnonKey) return 'file';
+  if (location.protocol === 'file:' || /claudeusercontent|claude\.ai/.test(location.host)) return 'none';
+  try {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 4000);
+    const r = await fetch('/api/config', { signal: ctl.signal, cache: 'no-store' }); clearTimeout(t);
+    if (r.ok && /json/.test(r.headers.get('content-type') || '')) {
+      const c = await r.json();
+      if (c.supabaseUrl && c.supabaseAnonKey) { CFG.supabaseUrl = c.supabaseUrl; CFG.supabaseAnonKey = c.supabaseAnonKey; if (c.loginDomain) CFG.loginDomain = c.loginDomain; return 'netlify'; }
+    }
+  } catch (e) {}
+  return 'none';
+};
+STEM.makeStore = () => (CFG.supabaseUrl && CFG.supabaseAnonKey ? liveStore() : demoStore());
 STEM.levelFor = levelFor;
 STEM.COMPLETE = { seconds: COMPLETE_SECONDS, interactions: COMPLETE_INTERACTIONS };
 })();

@@ -2,7 +2,7 @@
 
 The learning website of the STEM Club at Dangila Secondary School: interactive chemistry, electricity, biology and maths labs, with student accounts, progress tracking, exams and certificates.
 
-**To go live, follow [SETUP.md](SETUP.md).** Until then the site runs in demo mode, with accounts `elizabeth / admin123`, `teacher / teacher123` and `abebe / student123`.
+**To go live, follow [SETUP.md](SETUP.md). Then open /#setup to check everything.** Until then the site runs in demo mode, with accounts `elizabeth / admin123`, `teacher / teacher123` and `abebe / student123`.
 
 ## What it does
 
@@ -42,7 +42,14 @@ assets/js/pages/account.js    login, dashboard, certificates, verification
 assets/js/pages/exams.js      taking exams, exam builder, results
 assets/js/pages/staff.js      teacher overview, students, student reports
 assets/js/pages/admin.js      labs, subjects, users, notices
-assets/js/app.js              menus and router
+assets/js/app.js              menus, router, start-up
+assets/js/i18n.js             English/Amharic translations, day/night mode
+assets/js/pages/setup.js      setup check page
+assets/js/pages/studio.js     AI Studio
+assets/js/pages/learn.js      courses, lessons, assignments
+netlify/functions/config.mjs  public settings from Netlify
+netlify/functions/setup.mjs   setup checks, admin account
+supabase/phase3.sql           Phase 3 database changes
 assets/js/python.js           Python runner (Pyodide in a Web Worker) and code editor
 assets/js/pages/code.js       coding exercises and the Python playground
 assets/js/pages/tutor.js      AI tutor chat panel
@@ -56,6 +63,15 @@ supabase/schema.sql           database, security rules and starting content
 ## Adding a coded simulation
 
 Copy a file in `assets/js/sims/`, change its `id`, `subject`, `title` and `mount` code, add its `<script>` line to `index.html` before `store.js`, and commit. Then open **Admin → Labs** and press **Add them to the site**.
+
+## Phase 3: easier setup, Amharic, night mode, AI Studio, e-learning
+
+- **Settings from Netlify** (`netlify/functions/config.mjs`): the site reads its Supabase URL and anon key from Netlify environment variables, so `config.js` stays empty.
+- **Setup page** `/#setup` (`netlify/functions/setup.mjs`, `assets/js/pages/setup.js`): checks every connection and creates or repairs the admin account, protected by `SETUP_CODE`.
+- **English ↔ Amharic** (`assets/js/i18n.js`): one button translates menus, buttons and pages. The translations are an editable list.
+- **Day / night mode**: one button, remembered on each device.
+- **AI Studio** `/#ai` (`assets/js/pages/studio.js`): Claude, ChatGPT and Gemini through Netlify AI Gateway, with seven tools (ask, explain simply, step-by-step solver, English↔Amharic translation, flashcards, practice quiz, writing feedback) and side-by-side model comparison. The admin manages the model list and limits.
+- **E-learning** `/#learn` (`assets/js/pages/learn.js`, `supabase/phase3.sql`): courses with lessons (text, video, links, a lab, an exam), lesson completion, assignments with teacher marking and feedback, and course progress reports.
 
 ## Phase 2: AI tutor and coding lab
 
