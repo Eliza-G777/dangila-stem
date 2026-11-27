@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Danglila STEM Club</title>
+<meta name="description" content="Interactive chemistry, electricity, biology and maths simulations from the Danglila Secondary School STEM Club.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%231f3f99'/%3E%3Ccircle cx='20' cy='20' r='4' fill='%23ffc533'/%3E%3Cellipse cx='20' cy='20' rx='14' ry='5' fill='none' stroke='white' stroke-width='2'/%3E%3Cellipse cx='20' cy='20' rx='14' ry='5' fill='none' stroke='white' stroke-width='2' transform='rotate(60 20 20)'/%3E%3Cellipse cx='20' cy='20' rx='14' ry='5' fill='none' stroke='white' stroke-width='2' transform='rotate(120 20 20)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#home"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="4" fill="#ffc533"/><ellipse cx="20" cy="20" rx="16" ry="6" fill="none" stroke="#fff" stroke-width="2"/><ellipse cx="20" cy="20" rx="16" ry="6" fill="none" stroke="#fff" stroke-width="2" transform="rotate(60 20 20)"/><ellipse cx="20" cy="20" rx="16" ry="6" fill="none" stroke="#fff" stroke-width="2" transform="rotate(120 20 20)"/></svg><span>Danglila STEM Club</span></a>
+  <nav class="main" id="nav"></nav>
+  <div id="acctBtn"></div>
+</div></header>
+<div class="acct" id="acct" hidden></div>
+<div class="demobar" id="demoBar" hidden><div class="wrap"><span><b>Demo mode.</b> Accounts and results are saved only in this browser. <a href="#guide">How to go live</a></span><button class="linkbtn reset">Reset demo data</button></div></div>
+
+<span id="probe" style="color:var(--mut);display:none"></span>
+<main>
+<section class="view" data-view="home">
+  <div class="band hero"><div class="wrap">
+    <div>
+      <p class="am">Danglila Secondary School · STEM Club</p>
+      <h1>Try science with your own hands</h1>
+      <p>Mix chemicals, build circuits, watch living systems change and see maths move. Log in to track your progress, take exams and earn Danglila STEM certificates.</p>
+      <div class="ctas" id="heroCtas"></div>
+    </div>
+    <svg viewBox="0 0 520 380" role="img" aria-label="A drawing of a science lab bench with a flask, a glowing bulb, a leaf cell and a sine wave">
+      <defs>
+        <radialGradient id="glow"><stop offset="0" stop-color="#ffe27a" stop-opacity=".9"/><stop offset="1" stop-color="#ffc533" stop-opacity="0"/></radialGradient>
+        <linearGradient id="liq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7a5c"/><stop offset="1" stop-color="#e5483a"/></linearGradient>
+      </defs>
+      <rect x="0" y="40" width="520" height="250" rx="22" fill="#2a4fb3"/>
+      <path d="M40 120 Q 85 60 130 120 T 220 120 T 310 120" fill="none" stroke="#7aa0ff" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+      <g transform="translate(400 110)"><circle r="70" fill="url(#glow)"/><circle r="30" fill="#fff6d1"/><path d="M-10 6 q5-14 10 0 q5-14 10 0" fill="none" stroke="#e9a400" stroke-width="3"/><rect x="-14" y="28" width="28" height="22" rx="4" fill="#c9cfdd"/><rect x="-14" y="50" width="28" height="6" rx="3" fill="#8b93a8"/></g>
+      <g transform="translate(330 230)"><ellipse rx="52" ry="36" fill="#2c9a59"/><ellipse rx="52" ry="36" fill="none" stroke="#7fd6a0" stroke-width="3"/><circle cx="8" cy="-4" r="13" fill="#1e6f40"/><circle cx="-24" cy="10" r="5" fill="#a8e8c0"/><circle cx="26" cy="18" r="4" fill="#a8e8c0"/><circle cx="-14" cy="-18" r="4" fill="#a8e8c0"/></g>
+      <rect x="0" y="288" width="520" height="22" rx="4" fill="#ffc533"/>
+      <rect x="20" y="310" width="480" height="60" fill="#14266b"/>
+      <g transform="translate(150 150)">
+        <path d="M-18 0 V40 L-70 128 Q-74 138 -62 138 H62 Q74 138 70 128 L18 40 V0 Z" fill="#ffffff" opacity=".22"/>
+        <path d="M-46 80 L-70 128 Q-74 138 -62 138 H62 Q74 138 70 128 L46 80 Z" fill="url(#liq)"/>
+        <path d="M-18 0 V40 L-70 128 Q-74 138 -62 138 H62 Q74 138 70 128 L18 40 V0" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+        <rect x="-24" y="-6" width="48" height="8" rx="4" fill="#fff"/>
+        <circle class="bub" cx="-10" cy="120" r="6" fill="#fff"/><circle class="bub" style="animation-delay:1s" cx="14" cy="126" r="4" fill="#fff"/><circle class="bub" style="animation-delay:2s" cx="0" cy="112" r="5" fill="#fff"/>
+      </g>
+      <g fill="#fff" font-family="Lexend,sans-serif" font-size="15" font-weight="500"><text x="96" y="70">sin x</text><text x="368" y="200">V = I R</text><text x="300" y="285" fill="#141a2c">cell</text></g>
+    </svg>
+  </div></div>
+  <div class="band"><div class="wrap">
+    <h2>Choose a lab</h2>
+    <div class="labs" id="labCards"></div>
+  </div></div>
+  <div class="band" style="padding-top:0"><div class="wrap">
+    <div class="brandband">
+      <div><h2>Earn Danglila STEM certificates</h2><p>Every subject has three levels. Reach Investigator in every subject to become a STEM Scholar. Each certificate has a code anyone can <a href="#verify">check</a>.</p></div>
+      <div class="levels mini">
+        <div class="levelcard" style="--lc:#b4703a"><div class="seal">1</div><b>Explorer</b><p>Open every lab</p></div>
+        <div class="levelcard" style="--lc:#7d8796"><div class="seal">2</div><b>Investigator</b><p>Complete every lab and pass an exam</p></div>
+        <div class="levelcard" style="--lc:#c99a06"><div class="seal">3</div><b>Scientist</b><p>Pass two exams, 85% average</p></div>
+        <div class="levelcard" style="--lc:#5a3fa8"><div class="seal">★</div><b>STEM Scholar</b><p>Investigator in every subject</p></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="band" style="padding-top:0"><div class="wrap">
+    <div class="headrow"><h2>Club notice board</h2><a href="#club">All notices and forms</a></div>
+    <div class="notices" id="homeNews"><p class="empty">Loading notices…</p></div>
+  </div></div>
+  <div class="band" style="padding-top:0"><div class="wrap">
+    <h2>All simulations</h2>
+    <div class="search"><input type="search" id="q" placeholder="Search, e.g. acid, circuit, graph" aria-label="Search simulations"><select id="lvlFilter" aria-label="Filter by subject"></select></div>
+    <ul class="list" id="allList"></ul>
+  </div></div>
+</section>
+<section class="view" data-view="club">
+  <div class="band subhead" style="--c:var(--blue)"><div class="wrap"><h2>Club notices and ideas</h2><p>News from the Danglila STEM Club, a place to join, and a place to suggest the next experiment.</p></div></div>
+  <div class="band"><div class="wrap clubgrid">
+    <div><h3>Notice board</h3><div class="notices" id="allNews"><p class="empty">Loading notices…</p></div></div>
+    <div class="forms">
+      <form name="join-club" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="card">
+        <input type="hidden" name="form-name" value="join-club">
+        <input type="hidden" name="subject" value="New STEM club member (%{submissionId})">
+        <p hidden><label>Leave empty <input name="bot-field"></label></p>
+        <h3>Join the club</h3>
+        <label>Your name<input name="name" required autocomplete="name"></label>
+        <label>Grade<select name="grade" required><option value="">Choose…</option><option>Grade 9</option><option>Grade 10</option><option>Grade 11</option><option>Grade 12</option><option>Teacher</option></select></label>
+        <fieldset><legend>I am most interested in</legend><div class="checks">
+          <label><input type="checkbox" name="interests[]" value="Chemistry"> Chemistry</label>
+          <label><input type="checkbox" name="interests[]" value="Electricity"> Electricity</label>
+          <label><input type="checkbox" name="interests[]" value="Biology"> Biology</label>
+          <label><input type="checkbox" name="interests[]" value="Mathematics"> Mathematics</label>
+          <label><input type="checkbox" name="interests[]" value="Coding"> Coding</label>
+        </div></fieldset>
+        <button class="btn y" type="submit">Join</button><p class="formmsg note" aria-live="polite"></p>
+      </form>
+      <form name="suggest-experiment" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="card">
+        <input type="hidden" name="form-name" value="suggest-experiment">
+        <input type="hidden" name="subject" value="New experiment idea (%{submissionId})">
+        <p hidden><label>Leave empty <input name="bot-field"></label></p>
+        <h3>Suggest an experiment</h3>
+        <label>Your name (optional)<input name="name" autocomplete="name"></label>
+        <label>Subject<select name="topic"><option>Chemistry</option><option>Electricity</option><option>Biology</option><option>Mathematics</option><option>Physics</option><option>Other</option></select></label>
+        <label>Your idea<textarea name="idea" rows="4" required placeholder="For example: a pendulum where you can change the string length"></textarea></label>
+        <button class="btn" type="submit">Send idea</button><p class="formmsg note" aria-live="polite"></p>
+      </form>
+    </div>
+  </div></div>
+</section>
+<section class="view" data-view="guide">
+  <div class="band subhead" style="--c:var(--blue)"><div class="wrap"><h2>Guide for teachers and admins</h2><p>How the club website works, how to run a session, and how to grow it.</p></div></div>
+  <div class="band"><div class="wrap teach">
+    <div>
+      <h3>Who can do what</h3>
+      <ul>
+        <li><b>Students</b> use the labs, take exams, see their progress and collect certificates.</li>
+        <li><b>Teachers</b> create student logins, build and publish exams, read results and post notices.</li>
+        <li><b>The admin</b> also adds labs and subjects, manages teacher accounts and changes roles.</li>
+      </ul>
+      <h3>How progress is counted</h3>
+      <p>A lab is <b>started</b> when a logged-in student opens it, and <b>completed</b> after about 2 minutes of real use (with at least 10 actions in built-in simulations). Time only counts while the student is active on the page.</p>
+      <h3>Running a club session</h3>
+      <ol>
+        <li>Open one lab on the classroom screen and ask students to predict what will happen.</li>
+        <li>Let pairs try it on phones or school computers, changing one thing at a time.</li>
+        <li>Finish with a short published exam, then check the question analysis to see what to teach again.</li>
+      </ol>
+      <h3>Safety first</h3>
+      <p>The chemistry lab shows reactions virtually. Real acids, alkalis, silver nitrate and copper sulfate need goggles, gloves and a teacher.</p>
+    </div>
+    <div>
+      <h3>Adding labs without code</h3>
+      <p>Admin → Labs → <b>Add a lab</b>. Paste a link to a free simulation (for example from PhET or GeoGebra) or write a hands-on guide with numbered steps.</p>
+      <h3>Adding a coded simulation</h3>
+      <p>Copy a file in <code>assets/js/sims/</code>, change it, and add one <code>&lt;script&gt;</code> line in <code>index.html</code>. After publishing, open Admin → Labs and press <b>Add them to the site</b>.</p>
+      <div class="row" style="justify-content:flex-end;margin-bottom:6px"><button class="btn ghost" id="copyBtn">Copy template</button></div>
+<pre id="snippet">(()=>{
+const {$, slider, SIMS} = STEM;
+SIMS.push({
+  id: 'my-new-sim',          // letters, numbers and hyphens
+  subject: 'biology',        // a subject id
+  title: 'My new simulation',
+  level: 'Grade 9',
+  blurb: 'One sentence about what students will learn.',
+  mount(el) {
+    el.innerHTML = '&lt;p&gt;Your experiment goes here&lt;/p&gt;';
+    return { frame(dt) { /* runs every frame */ } };
+  }
+});
+})();</pre>
+      <h3>Going live</h3>
+      <p>Until the database is connected the site runs in <b>demo mode</b>, saving everything in one browser. The file <code>SETUP.md</code> explains the three steps: create a free Supabase project, paste two keys into <code>assets/js/config.js</code>, and add two settings in Netlify.</p>
+    </div>
+  </div></div>
+</section>
+<section class="view" id="dyn" data-view="dyn" aria-live="polite"></section>
+</main>
+<footer class="band"><div class="wrap"><span>Danglila Secondary School STEM Club</span><span><a href="#guide">Guide</a> · <a href="#verify">Check a certificate</a> · <a href="#club">Join the club</a></span></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+<!-- Load order: helpers, settings, simulations (one file each), data, pages, then the app -->
+<script src="assets/js/core.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/sims/chemistry-reaction-mixer.js"></script>
+<script src="assets/js/sims/chemistry-ph-scale.js"></script>
+<script src="assets/js/sims/electricity-circuit-builder.js"></script>
+<script src="assets/js/sims/electricity-ohms-law.js"></script>
+<script src="assets/js/sims/biology-predator-prey.js"></script>
+<script src="assets/js/sims/biology-membrane-diffusion.js"></script>
+<script src="assets/js/sims/math-graph-transformer.js"></script>
+<script src="assets/js/sims/math-unit-circle.js"></script>
+<script src="assets/js/sims/math-dice-probability.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/pages/labs.js"></script>
+<script src="assets/js/pages/account.js"></script>
+<script src="assets/js/pages/exams.js"></script>
+<script src="assets/js/pages/staff.js"></script>
+<script src="assets/js/pages/admin.js"></script>
+<script src="assets/js/app.js"></script>
+<script>document.getElementById('copyBtn').onclick=async e=>{try{await navigator.clipboard.writeText(document.getElementById('snippet').textContent);e.target.textContent='Copied'}catch(err){e.target.textContent='Select the code to copy'}}</script>
+</body>
+</html>

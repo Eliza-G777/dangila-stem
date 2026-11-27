@@ -1,0 +1,18 @@
+# Netlify settings. The site is plain HTML/CSS/JS, so there is no build step.
+[build]
+  publish = "."
+  command = ""
+
+[functions]
+  directory = "netlify/functions"
+
+# Always fetch fresh notices and quizzes, cache the rest for a day
+[[headers]]
+  for = "/content/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

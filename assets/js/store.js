@@ -1,0 +1,289 @@
+/* Data layer. Two versions with the same functions:
+   - LIVE: Supabase (when STEM.CONFIG.supabaseUrl is filled in)
+   - DEMO: everything saved in this browser only, so the site can be tried before Supabase is set up.
+   Pages only ever call STEM.store.<function>(), so they work the same with either. */
+(() => {
+const CFG = STEM.CONFIG;
+const COMPLETE_SECONDS = 120, COMPLETE_INTERACTIONS = 10;
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2));
+const nowISO = () => new Date().toISOString();
+const listeners = [];
+const emit = u => listeners.forEach(f => { try { f(u); } catch (e) { console.error(e); } });
+const levelFor = s => { let l = 0; if (s.labs_total > 0 && s.labs_opened >= s.labs_total) l = 1; if (l === 1 && s.labs_completed >= s.labs_total && s.exams_passed >= 1) l = 2; if (l === 2 && s.exams_passed >= 2 && s.avg_best >= 85) l = 3; return l; };
+
+/* =================================================================== DEMO */
+function demoStore() {
+  const KEY = 'dscDemoDB_v1', SKEY = 'dscDemoSession';
+  let db;
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
+  const code = (sub, l) => 'DSC-' + (sub === 'all' ? 'STEM-S' : sub.slice(0, 4).toUpperCase() + '-' + l) + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+
+  function seed() {
+    const subjects = STEM.DEFAULT_SUBJECTS.map((s, i) => ({ ...s, position: i + 1, published: true }));
+    const labs = STEM.SIMS.map((x, i) => ({ id: x.id, subject_id: x.subject, kind: 'builtin', title: x.title, level: x.level, blurb: x.blurb, instructions: '', embed_url: '', position: i + 1, published: true }));
+    labs.push({ id: 'phet-circuit-kit', subject_id: 'electricity', kind: 'embed', title: 'Circuit construction kit (PhET)', level: 'Grade 9–12', blurb: 'Build any circuit you like with wires, batteries, bulbs and switches. A free simulation from the University of Colorado.', instructions: 'Build a circuit with one battery and two bulbs in series. Then rebuild it in parallel. Which bulbs are brighter, and why?', embed_url: 'https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html', position: 30, published: true });
+    labs.push({ id: 'hands-on-fizz', subject_id: 'chemistry', kind: 'guide', title: 'Hands-on: vinegar and baking soda', level: 'Grade 9', blurb: 'A safe real experiment to do in class after the reaction mixer.', instructions: 'You need: vinegar, baking soda, a clear cup, a spoon, a balloon and a small bottle.\n1. Put two spoons of baking soda in the cup.\n2. Predict what will happen when you add vinegar. Write it down.\n3. Slowly pour in half a cup of vinegar and watch.\n4. Now put baking soda inside a balloon, vinegar in the bottle, and stretch the balloon over the bottle neck.\n5. Lift the balloon so the powder falls in. What fills the balloon?\nSafety: wear goggles and do not taste anything.', embed_url: '', position: 30, published: true });
+    const U = (username, password, full_name, role, grade) => ({ id: uid(), username, password, full_name, role, grade, created_at: nowISO() });
+    const users = [U('elizabeth', 'admin123', 'Elizabeth Genetu', 'admin', ''), U('teacher', 'teacher123', 'Demo Teacher', 'teacher', ''),
+      U('abebe', 'student123', 'Abebe Kebede', 'student', 'Grade 10'), U('hana', 'student123', 'Hana Mekonnen', 'student', 'Grade 9'),
+      U('dawit', 'student123', 'Dawit Alemu', 'student', 'Grade 10'), U('meron', 'student123', 'Meron Tesfaye', 'student', 'Grade 11')];
+    const teacher = users[1].id;
+    const Q = (question, options, answer, points = 1) => ({ id: uid(), question, options, answer, points });
+    const exams = [], questions = [];
+    const addExam = (e, qs) => { const id = uid(); exams.push({ id, grade: '', description: '', time_limit: 15, pass_mark: 60, max_attempts: 2, published: true, created_by: teacher, created_at: nowISO(), updated_at: nowISO(), ...e }); qs.forEach((q, i) => questions.push({ ...q, exam_id: id, position: i })); return id; };
+    const chem = addExam({ title: 'Chemistry basics', subject_id: 'chemistry', grade: 'Grade 9–10', description: 'Reactions, acids and the pH scale.' }, [
+      Q('What gas is given off when an acid reacts with baking soda?', ['Oxygen', 'Hydrogen', 'Carbon dioxide', 'Nitrogen'], 2),
+      Q('What is the pH of pure water?', ['0', '7', '10', '14'], 1),
+      Q('Which of these is a sign that a chemical reaction has happened?', ['The liquid is poured', 'A precipitate forms', 'The beaker is moved', 'The lid is closed'], 1),
+      Q('Iron displaces copper from copper(II) sulfate because…', ['iron is more reactive than copper', 'copper is more reactive than iron', 'the solution is blue', 'iron is heavier'], 0),
+      Q('Lemon juice has a pH of about 2. It is…', ['strongly acidic', 'neutral', 'weakly alkaline', 'strongly alkaline'], 0, 2)]);
+    const elec = addExam({ title: 'Circuits check', subject_id: 'electricity', grade: 'Grade 9–10', description: 'Ohm’s law, series and parallel circuits.', time_limit: 10 }, [
+      Q('A 12 V battery drives current through a 4 Ω resistor. What is the current?', ['48 A', '3 A', '0.33 A', '16 A'], 1),
+      Q('In a series circuit, the current through each bulb is…', ['the same', 'different', 'zero', 'doubled'], 0),
+      Q('Adding another bulb in parallel makes the total resistance…', ['bigger', 'smaller', 'stay the same'], 1)]);
+    addExam({ title: 'Biology practice', subject_id: 'biology', description: 'Practice as many times as you like.', max_attempts: 0, time_limit: 0 }, [
+      Q('Diffusion moves particles from…', ['low to high concentration', 'high to low concentration'], 1),
+      Q('Raising the temperature makes diffusion…', ['slower', 'faster', 'stop'], 1)]);
+    addExam({ title: 'Graphs and trigonometry (draft)', subject_id: 'math', published: false }, [Q('sin 90° = ?', ['0', '1', '−1'], 1)]);
+    // some history so the teacher pages have something to show
+    const progress = [], attempts = [];
+    const P = (u, lab, sub, secs, inter) => progress.push({ user_id: u.id, lab_id: lab, subject_id: sub, seconds: secs, interactions: inter, completed: secs >= COMPLETE_SECONDS && inter >= COMPLETE_INTERACTIONS, first_at: nowISO(), last_at: new Date(Date.now() - Math.random() * 5 * 864e5).toISOString() });
+    const [ , , abebe, hana, dawit, meron] = users;
+    P(abebe, 'reaction-mixer', 'chemistry', 300, 40); P(abebe, 'ph-scale', 'chemistry', 200, 25); P(abebe, 'hands-on-fizz', 'chemistry', 60, 0); P(abebe, 'circuit-builder', 'electricity', 90, 12);
+    P(hana, 'reaction-mixer', 'chemistry', 150, 15); P(hana, 'predator-prey', 'biology', 400, 30);
+    P(dawit, 'circuit-builder', 'electricity', 500, 60); P(dawit, 'ohms-law', 'electricity', 260, 22); P(dawit, 'phet-circuit-kit', 'electricity', 600, 0);
+    P(meron, 'graph-transformer', 'math', 180, 40);
+    const A = (u, exam, pct) => { const qs = questions.filter(q => q.exam_id === exam); const max = qs.reduce((s, q) => s + q.points, 0); const score = Math.round(max * pct / 100); let left = score; const detail = qs.map(q => { const ok = left >= q.points; if (ok) left -= q.points; return { id: q.id, chosen: ok ? q.answer : (q.answer + 1) % q.options.length, correct: ok }; }); attempts.push({ id: uid(), exam_id: exam, user_id: u.id, answers: {}, detail, score, max_score: max, percent: Math.round(1000 * score / max) / 10, passed: 100 * score / max >= 60, started_at: nowISO(), submitted_at: new Date(Date.now() - Math.random() * 4 * 864e5).toISOString() }); };
+    A(abebe, chem, 83); A(hana, chem, 50); A(dawit, elec, 100); A(meron, chem, 66);
+    return { subjects, labs, news: [
+      { id: uid(), date: new Date().toISOString().slice(0, 10), tag: 'News', title: 'Student accounts are here', body: 'Log in to track your lab progress, take exams and earn Danglila STEM certificates.', link: '#login', link_text: 'Log in' },
+      { id: uid(), date: new Date(Date.now() + 864e5).toISOString().slice(0, 10), tag: 'Sample', title: 'Weekly club session (sample notice: edit this)', body: 'Replace this with your real meeting day, time and room.', link: '#chemistry', link_text: 'Open the chemistry lab' }],
+      users, progress, exams, questions, attempts, certificates: [] };
+  }
+
+  try { db = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { db = null; }
+  if (!db || !db.users) { db = seed(); save(); }
+  let me = null;
+  try { const s = localStorage.getItem(SKEY); me = db.users.find(u => u.id === s) || null; } catch (e) {}
+  const pub = u => u && ({ id: u.id, username: u.username, full_name: u.full_name, role: u.role, grade: u.grade, created_at: u.created_at });
+  const need = r => { if (!me) throw new Error('Please log in'); if (r === 'staff' && !['teacher', 'admin'].includes(me.role)) throw new Error('Teachers only'); if (r === 'admin' && me.role !== 'admin') throw new Error('Admin only'); };
+  const isStaff = () => me && ['teacher', 'admin'].includes(me.role);
+  const ok = v => Promise.resolve(JSON.parse(JSON.stringify(v)));
+  const run = f => { try { return ok(f()); } catch (e) { return Promise.reject(e); } };
+  const status = userId => db.subjects.filter(s => s.published).sort((a, b) => a.position - b.position).map(s => {
+    const labs = db.labs.filter(l => l.subject_id === s.id && l.published).map(l => l.id);
+    const pr = db.progress.filter(p => p.user_id === userId && labs.includes(p.lab_id));
+    const best = {};
+    db.attempts.filter(a => a.user_id === userId && (db.exams.find(e => e.id === a.exam_id) || {}).subject_id === s.id).forEach(a => {
+      const b = best[a.exam_id] || (best[a.exam_id] = { best: 0, passed: false }); b.best = Math.max(b.best, a.percent); b.passed = b.passed || a.passed; });
+    const passedList = Object.values(best).filter(b => b.passed);
+    const st = { subject_id: s.id, labs_total: labs.length, labs_opened: pr.length, labs_completed: pr.filter(p => p.completed).length, exams_passed: passedList.length, avg_best: passedList.length ? Math.round(10 * passedList.reduce((t, b) => t + b.best, 0) / passedList.length) / 10 : 0 };
+    st.level = levelFor(st); return st;
+  });
+
+  return {
+    mode: 'demo',
+    async init() { return pub(me); },
+    user: () => pub(me),
+    onChange: f => listeners.push(f),
+    async signIn(username, password) {
+      const u = db.users.find(x => x.username === String(username).trim().toLowerCase() && x.password === password);
+      if (!u) throw new Error('Wrong username or password');
+      me = u; try { localStorage.setItem(SKEY, u.id); } catch (e) {} emit(pub(me)); return pub(me);
+    },
+    async signOut() { me = null; try { localStorage.removeItem(SKEY); } catch (e) {} emit(null); },
+    resetDemo() { db = seed(); save(); me = null; try { localStorage.removeItem(SKEY); } catch (e) {} emit(null); },
+
+    getSubjects: () => ok(db.subjects.filter(s => s.published || isStaff()).sort((a, b) => a.position - b.position)),
+    saveSubject: s => run(() => { need('admin'); const i = db.subjects.findIndex(x => x.id === s.id); if (i >= 0) db.subjects[i] = { ...db.subjects[i], ...s }; else db.subjects.push({ published: true, position: db.subjects.length + 1, ...s }); save(); return s; }),
+    deleteSubject: id => run(() => { need('admin'); db.subjects = db.subjects.filter(s => s.id !== id); db.labs = db.labs.filter(l => l.subject_id !== id); save(); }),
+    getLabs: () => ok(db.labs.filter(l => l.published || isStaff()).sort((a, b) => a.position - b.position)),
+    saveLab: l => run(() => { need('admin'); const i = db.labs.findIndex(x => x.id === l.id); if (i >= 0) db.labs[i] = { ...db.labs[i], ...l }; else db.labs.push({ kind: 'builtin', level: '', blurb: '', instructions: '', embed_url: '', published: true, position: 99, ...l }); save(); return l; }),
+    deleteLab: id => run(() => { need('admin'); db.labs = db.labs.filter(l => l.id !== id); save(); }),
+    getNews: () => ok([...db.news].sort((a, b) => String(b.date).localeCompare(String(a.date)))),
+    saveNews: n => run(() => { need('staff'); if (n.id) { const i = db.news.findIndex(x => x.id === n.id); db.news[i] = { ...db.news[i], ...n }; } else db.news.push({ ...n, id: uid() }); save(); }),
+    deleteNews: id => run(() => { need('staff'); db.news = db.news.filter(n => n.id !== id); save(); }),
+
+    trackLab: (lab, subject, kind, secs, inter) => run(() => {
+      need(); secs = Math.min(Math.max(secs | 0, 0), 60); inter = Math.min(Math.max(inter | 0, 0), 200);
+      let p = db.progress.find(x => x.user_id === me.id && x.lab_id === lab);
+      if (!p) { p = { user_id: me.id, lab_id: lab, subject_id: subject, seconds: 0, interactions: 0, completed: false, first_at: nowISO() }; db.progress.push(p); }
+      p.seconds += secs; p.interactions += inter; p.last_at = nowISO();
+      if (!p.completed && p.seconds >= COMPLETE_SECONDS && (p.interactions >= COMPLETE_INTERACTIONS || kind !== 'builtin')) p.completed = true;
+      save(); return p;
+    }),
+    myProgress: () => run(() => { need(); return db.progress.filter(p => p.user_id === me.id); }),
+
+    listExams: () => run(() => { need(); return db.exams.filter(e => e.published || isStaff()).map(e => ({ ...e, question_count: db.questions.filter(q => q.exam_id === e.id).length })).sort((a, b) => b.created_at.localeCompare(a.created_at)); }),
+    getExamForEdit: id => run(() => { need('staff'); return { exam: db.exams.find(e => e.id === id), questions: db.questions.filter(q => q.exam_id === id).sort((a, b) => a.position - b.position) }; }),
+    saveExam: (exam, qs) => run(() => {
+      need('staff'); let id = exam.id;
+      const fields = ['title', 'subject_id', 'grade', 'description', 'time_limit', 'pass_mark', 'max_attempts', 'published'];
+      const clean = Object.fromEntries(fields.map(f => [f, exam[f]]));
+      if (id) { const i = db.exams.findIndex(e => e.id === id); db.exams[i] = { ...db.exams[i], ...clean, updated_at: nowISO() }; }
+      else { id = uid(); db.exams.push({ ...clean, id, created_by: me.id, created_at: nowISO(), updated_at: nowISO() }); }
+      db.questions = db.questions.filter(q => q.exam_id !== id).concat(qs.map((q, i) => ({ id: uid(), exam_id: id, position: i, question: q.question, options: q.options, answer: q.answer | 0, points: Math.max(0, q.points | 0) }))); save(); return id;
+    }),
+    deleteExam: id => run(() => { need('staff'); db.exams = db.exams.filter(e => e.id !== id); db.questions = db.questions.filter(q => q.exam_id !== id); db.attempts = db.attempts.filter(a => a.exam_id !== id); save(); }),
+    getPaper: id => run(() => {
+      need(); const e = db.exams.find(x => x.id === id); if (!e || (!e.published && !isStaff())) throw new Error('This exam is not available');
+      return { exam: e, attempts_used: db.attempts.filter(a => a.exam_id === id && a.user_id === me.id).length, questions: db.questions.filter(q => q.exam_id === id).sort((a, b) => a.position - b.position).map(q => ({ id: q.id, question: q.question, options: q.options, points: q.points })) };
+    }),
+    submitExam: (id, answers, started) => run(() => {
+      need(); const e = db.exams.find(x => x.id === id); if (!e || !e.published) throw new Error('This exam is not available');
+      const used = db.attempts.filter(a => a.exam_id === id && a.user_id === me.id).length;
+      if (e.max_attempts > 0 && used >= e.max_attempts) throw new Error('You have no attempts left for this exam');
+      const show = e.max_attempts === 0 || used + 1 >= e.max_attempts; let s = 0, m = 0; const detail = [], key = {};
+      db.questions.filter(q => q.exam_id === id).sort((a, b) => a.position - b.position).forEach(q => {
+        const a = answers[q.id] === undefined || answers[q.id] === '' ? null : +answers[q.id]; const c = a !== null && a === q.answer;
+        m += q.points; if (c) s += q.points; detail.push({ id: q.id, chosen: a, correct: c }); if (show) key[q.id] = q.answer; });
+      const pct = m ? Math.round(1000 * s / m) / 10 : 0;
+      const at = { id: uid(), exam_id: id, user_id: me.id, answers, detail, score: s, max_score: m, percent: pct, passed: pct >= e.pass_mark, started_at: started, submitted_at: nowISO() };
+      db.attempts.push(at); save(); return { ...at, answers_key: key };
+    }),
+    myAttempts: () => run(() => { need(); return db.attempts.filter(a => a.user_id === me.id); }),
+
+    certStatus: userId => run(() => { need(); if (userId && userId !== me.id) need('staff'); return status(userId || me.id); }),
+    claimCertificates: () => run(() => {
+      need(); const st = status(me.id); let n = 0, all = true;
+      const add = (sub, l) => { if (!db.certificates.find(c => c.user_id === me.id && c.subject_id === sub && c.level === l)) db.certificates.push({ id: uid(), user_id: me.id, subject_id: sub, level: l, code: code(sub, l), issued_at: nowISO() }); };
+      st.forEach(s => { if (s.labs_total > 0) { n++; if (s.level < 2) all = false; for (let l = 1; l <= s.level; l++) add(s.subject_id, l); } });
+      if (n && all) add('all', 1); save(); return db.certificates.filter(c => c.user_id === me.id);
+    }),
+    myCertificates: () => run(() => { need(); return db.certificates.filter(c => c.user_id === me.id); }),
+    verifyCertificate: c => run(() => {
+      const x = db.certificates.find(k => k.code.toUpperCase() === String(c).trim().toUpperCase()); if (!x) return { valid: false };
+      const u = db.users.find(k => k.id === x.user_id) || {}; const s = db.subjects.find(k => k.id === x.subject_id);
+      return { valid: true, full_name: u.full_name, subject_id: x.subject_id, subject_name: s ? s.name : 'All subjects', level: x.level, issued_at: x.issued_at, code: x.code };
+    }),
+
+    listProfiles: () => run(() => { need('staff'); return db.users.map(pub); }),
+    allProgress: () => run(() => { need('staff'); return db.progress; }),
+    allAttempts: () => run(() => { need('staff'); return db.attempts; }),
+    allCertificates: () => run(() => { need('staff'); return db.certificates; }),
+    userProgress: id => run(() => { need('staff'); return db.progress.filter(p => p.user_id === id); }),
+    userAttempts: id => run(() => { need('staff'); return db.attempts.filter(a => a.user_id === id); }),
+    userCertificates: id => run(() => { need('staff'); return db.certificates.filter(c => c.user_id === id); }),
+
+    manageUsers: body => run(() => {
+      need('staff'); const admin = me.role === 'admin';
+      const target = id => { const u = db.users.find(x => x.id === id); if (!u) throw new Error('User not found'); if (!admin && u.role !== 'student') throw new Error('Teachers can only manage student accounts'); return u; };
+      const pw = () => ['lion', 'river', 'tana', 'atom', 'cell', 'volt', 'orbit', 'eagle'][Math.floor(Math.random() * 8)] + (1000 + Math.floor(Math.random() * 9000));
+      const slug = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '').slice(0, 24) || 'student';
+      if (body.action === 'create') {
+        const created = [], failed = [];
+        (body.users || []).forEach(u => {
+          const full_name = String(u.full_name || '').trim(); if (!full_name) return failed.push({ full_name, error: 'Missing name' });
+          let base = slug(u.username || full_name), name = base, i = 2;
+          if (u.username && db.users.some(x => x.username === name)) return failed.push({ full_name, error: `Username ${name} is taken` });
+          while (db.users.some(x => x.username === name)) name = base + i++;
+          const password = u.password && u.password.length >= 6 ? u.password : pw();
+          const role = admin && ['student', 'teacher', 'admin'].includes(u.role) ? u.role : 'student';
+          const nu = { id: uid(), username: name, password, full_name, role, grade: u.grade || '', created_at: nowISO() };
+          db.users.push(nu); created.push({ id: nu.id, username: name, password, full_name, grade: nu.grade, role });
+        });
+        save(); return { created, failed };
+      }
+      if (body.action === 'reset') { const u = target(body.user_id); u.password = body.password && body.password.length >= 6 ? body.password : pw(); save(); return { username: u.username, password: u.password }; }
+      if (body.action === 'update') { const u = target(body.user_id); if (typeof body.full_name === 'string') u.full_name = body.full_name.trim(); if (typeof body.grade === 'string') u.grade = body.grade.trim(); save(); return { ok: true }; }
+      if (body.action === 'role') { need('admin'); if (body.user_id === me.id && body.role !== 'admin') throw new Error('You cannot remove your own admin role'); target(body.user_id).role = body.role; save(); return { ok: true }; }
+      if (body.action === 'delete') { need('admin'); if (body.user_id === me.id) throw new Error('You cannot delete your own account'); db.users = db.users.filter(u => u.id !== body.user_id); ['progress', 'attempts', 'certificates'].forEach(t => db[t] = db[t].filter(r => r.user_id !== body.user_id)); save(); return { ok: true }; }
+      throw new Error('Unknown action');
+    })
+  };
+}
+
+/* =================================================================== LIVE (Supabase) */
+function liveStore() {
+  let sb, me = null;
+  const loadLib = () => new Promise((res, rej) => {
+    if (window.supabase) return res();
+    const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
+    s.onload = res; s.onerror = () => rej(new Error('Could not load Supabase')); document.head.appendChild(s);
+  });
+  const q = async p => { const { data, error } = await p; if (error) throw new Error(error.message); return data; };
+  const all = async build => { const out = []; for (let from = 0; ; from += 1000) { const rows = await q(build().range(from, from + 999)); out.push(...rows); if (rows.length < 1000) return out; } };
+  const loadMe = async session => {
+    if (!session) { me = null; return null; }
+    const rows = await q(sb.from('profiles').select('*').eq('id', session.user.id));
+    me = rows[0] || null; return me;
+  };
+  const rpc = (fn, args) => q(sb.rpc(fn, args));
+  return {
+    mode: 'live',
+    async init() {
+      await loadLib();
+      sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true } });
+      const { data } = await sb.auth.getSession(); await loadMe(data.session);
+      sb.auth.onAuthStateChange(async (ev, session) => { if (ev === 'SIGNED_OUT' || ev === 'SIGNED_IN') { await loadMe(session); emit(me); } });
+      return me;
+    },
+    user: () => me,
+    onChange: f => listeners.push(f),
+    async signIn(username, password) {
+      const email = `${String(username).trim().toLowerCase()}@${CFG.loginDomain}`;
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw new Error(/invalid/i.test(error.message) ? 'Wrong username or password' : error.message);
+      await loadMe(data.session); emit(me); return me;
+    },
+    async signOut() { await sb.auth.signOut(); me = null; emit(null); },
+
+    getSubjects: () => q(sb.from('subjects').select('*').order('position')),
+    saveSubject: s => q(sb.from('subjects').upsert(s)),
+    deleteSubject: id => q(sb.from('subjects').delete().eq('id', id)),
+    getLabs: () => q(sb.from('labs').select('*').order('position')),
+    saveLab: l => q(sb.from('labs').upsert(l)),
+    deleteLab: id => q(sb.from('labs').delete().eq('id', id)),
+    getNews: () => q(sb.from('news').select('*').order('date', { ascending: false }).limit(100)),
+    saveNews: n => { const { id, ...rest } = n; return id ? q(sb.from('news').update(rest).eq('id', id)) : q(sb.from('news').insert(rest)); },
+    deleteNews: id => q(sb.from('news').delete().eq('id', id)),
+
+    trackLab: (lab, subject, kind, secs, inter) => rpc('track_lab', { p_lab: lab, p_subject: subject, p_kind: kind, p_seconds: secs, p_interactions: inter }),
+    myProgress: () => q(sb.from('lab_progress').select('*').eq('user_id', me.id)),
+
+    async listExams() {
+      const exams = await q(sb.from('exams').select('*').order('created_at', { ascending: false }));
+      if (me && ['teacher', 'admin'].includes(me.role)) {
+        const qs = await all(() => sb.from('exam_questions').select('exam_id'));
+        exams.forEach(e => e.question_count = qs.filter(x => x.exam_id === e.id).length);
+      }
+      return exams;
+    },
+    async getExamForEdit(id) {
+      const [exam] = await q(sb.from('exams').select('*').eq('id', id));
+      const questions = await q(sb.from('exam_questions').select('*').eq('exam_id', id).order('position'));
+      return { exam, questions };
+    },
+    saveExam: (exam, qs) => rpc('save_exam', { p_exam: exam, p_questions: qs.map(x => ({ question: x.question, options: x.options, answer: x.answer, points: x.points })) }),
+    deleteExam: id => q(sb.from('exams').delete().eq('id', id)),
+    getPaper: id => rpc('get_exam_paper', { p_exam: id }),
+    submitExam: (id, answers, started) => rpc('submit_exam', { p_exam: id, p_answers: answers, p_started: started }),
+    myAttempts: () => q(sb.from('attempts').select('*').eq('user_id', me.id)),
+
+    certStatus: userId => rpc('certificate_status', { p_user: userId || null }),
+    claimCertificates: () => rpc('claim_certificates'),
+    myCertificates: () => q(sb.from('certificates').select('*').eq('user_id', me.id)),
+    verifyCertificate: c => rpc('verify_certificate', { p_code: c }),
+
+    listProfiles: () => all(() => sb.from('profiles').select('id,username,full_name,role,grade,created_at').order('full_name')),
+    allProgress: () => all(() => sb.from('lab_progress').select('*')),
+    allAttempts: () => all(() => sb.from('attempts').select('*')),
+    allCertificates: () => all(() => sb.from('certificates').select('*')),
+    userProgress: id => q(sb.from('lab_progress').select('*').eq('user_id', id)),
+    userAttempts: id => q(sb.from('attempts').select('*').eq('user_id', id)),
+    userCertificates: id => q(sb.from('certificates').select('*').eq('user_id', id)),
+
+    async manageUsers(body) {
+      const { data } = await sb.auth.getSession();
+      const r = await fetch(CFG.usersApi, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (data.session ? data.session.access_token : '') }, body: JSON.stringify(body) });
+      const out = await r.json().catch(() => ({ error: 'The server did not answer' }));
+      if (!r.ok || out.error) throw new Error(out.error || 'Request failed');
+      return out;
+    }
+  };
+}
+
+STEM.store = CFG.supabaseUrl && CFG.supabaseAnonKey ? liveStore() : demoStore();
+STEM.levelFor = levelFor;
+STEM.COMPLETE = { seconds: COMPLETE_SECONDS, interactions: COMPLETE_INTERACTIONS };
+})();
