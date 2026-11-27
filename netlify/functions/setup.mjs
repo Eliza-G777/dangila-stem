@@ -3,7 +3,8 @@
 // POST /api/setup { code, username, full_name, password }
 //      → creates the admin account, or resets its password and makes sure it is admin.
 //        Needs SETUP_CODE (a secret word you choose) in Netlify environment variables.
-const URL_ = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+const normUrl = u => { u = String(u || '').trim(); const m = /https?:\/\/([a-z0-9-]+)\.supabase\.co/i.exec(u); if (m) return `https://${m[1].toLowerCase()}.supabase.co`; const d = /supabase\.com\/dashboard\/project\/([a-z0-9]+)/i.exec(u); if (d) return `https://${d[1].toLowerCase()}.supabase.co`; return u.replace(/\/+$/, ''); };
+const URL_ = normUrl(process.env.SUPABASE_URL);
 const ANON = (process.env.SUPABASE_ANON_KEY || '').trim();
 const KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 const DOMAIN = (process.env.LOGIN_DOMAIN || 'dangila-stem.netlify.app').trim().toLowerCase();
@@ -25,11 +26,12 @@ async function listAuthUsers() {
   return out;
 }
 const tableOk = async t => { const r = await svc(`/rest/v1/${t}?select=*&limit=1`); return r.ok; };
+const tableWhy = async t => { const r = await svc(`/rest/v1/${t}?select=*&limit=1`); if (r.ok) return ''; let m = ''; try { const j = await r.json(); m = j.message || j.hint || j.code || ''; } catch (e) {} return `HTTP ${r.status}${m ? ': ' + String(m).slice(0, 140) : ''}`; };
 
 async function health() {
   const h = {
     env: { SUPABASE_URL: !!URL_, SUPABASE_ANON_KEY: !!ANON, SUPABASE_SERVICE_ROLE_KEY: !!KEY, LOGIN_DOMAIN: DOMAIN, SETUP_CODE: !!CODE },
-    urlLooksRight: /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(URL_),
+    urlLooksRight: /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(URL_), urlWasFixed: URL_ !== String(process.env.SUPABASE_URL || '').trim(),
     anonOk: null, serviceOk: null, schema: null, phase2: null, phase3: null, admins: null, users: null, usersWithoutProfile: null, usersOtherDomain: null, ai: !!(process.env.ANTHROPIC_BASE_URL || process.env.ANTHROPIC_API_KEY)
   };
   if (!URL_) return h;
@@ -40,7 +42,9 @@ async function health() {
   if (users.error) return h;
   h.users = users.length;
   h.usersOtherDomain = users.filter(u => !String(u.email || '').toLowerCase().endsWith('@' + DOMAIN)).length;
+  h.project = (/^https:\/\/([a-z0-9-]+)\.supabase\.co$/.exec(URL_) || [])[1] || '';
   h.schema = await safe(() => tableOk('profiles'));
+  if (h.schema !== true) h.schemaWhy = await safe(() => tableWhy('profiles'));
   h.phase2 = await safe(() => tableOk('app_settings'));
   h.phase3 = await safe(() => tableOk('courses'));
   if (h.schema === true) {
@@ -63,7 +67,7 @@ export default async (req) => {
   const username = slug(b.username), full_name = String(b.full_name || '').trim().slice(0, 80), password = String(b.password || '');
   if (!username) return json({ error: 'Choose a username (letters and numbers).' }, 400);
   if (password.length < 6) return json({ error: 'The password must have at least 6 characters.' }, 400);
-  if (!(await tableOk('profiles'))) return json({ error: 'The database is not ready: run supabase/schema.sql in the Supabase SQL Editor first.' }, 400);
+  if (!(await tableOk('profiles'))) { const why = await tableWhy('profiles'); const ref = (/^https:\/\/([a-z0-9-]+)\.supabase\.co$/.exec(URL_) || [])[1] || '?'; return json({ error: `The database is not ready in Supabase project "${ref}" (${why}). Run supabase/ALL_IN_ONE.sql in the SQL Editor of THAT project; the last result must say club_tables_found = 15.` }, 400); }
 
   const email = `${username}@${DOMAIN}`;
   let users; try { users = await listAuthUsers(); } catch (e) { return json({ error: 'Supabase rejected the service_role key. Copy it again from Supabase → Project Settings → API Keys (Legacy) and redeploy.' }, 400); }

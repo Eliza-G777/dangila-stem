@@ -128,6 +128,9 @@ async function usersTab(el) {
     el.querySelectorAll('.del').forEach(b => b.onclick = async () => { const p = people.find(x => x.id === b.dataset.id); if (!await ui.confirm(`Delete ${p.full_name}'s account and all their results? This cannot be undone.`, 'Delete', true)) return; try { await store().manageUsers({ action: 'delete', user_id: p.id }); people.splice(people.indexOf(p), 1); draw(); ui.toast('Deleted'); } catch (e) { ui.toast(ui.err(e), 'bad'); } });
   };
   el.querySelector('.uq').oninput = draw; el.querySelector('.ur').onchange = draw; draw();
+  const settings = await store().getSettings().catch(() => ({}));
+  el.insertAdjacentHTML('afterbegin', `<div class="out"><label class="check"><input type="checkbox" class="sgn" ${(settings.signup || {}).enabled === false ? '' : 'checked'}> Students may create their own account with a class code (on the login page)</label></div>`);
+  el.querySelector('.sgn').onchange = async e => { try { await store().saveSettings('signup', { enabled: e.target.checked }); ui.toast(e.target.checked ? 'Student sign-up is on' : 'Student sign-up is off'); } catch (er) { ui.toast(ui.err(er), 'bad'); } };
   el.querySelector('.as').onclick = () => STEM.addUsersDialog('student');
   el.querySelector('.at').onclick = () => STEM.addUsersDialog('teacher');
 }

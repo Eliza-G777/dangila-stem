@@ -15,6 +15,7 @@ STEM.pages.push({
         <label>Password<input name="p" type="password" required autocomplete="current-password"></label>
         <button class="btn y" type="submit">Log in</button><p class="formmsg" aria-live="polite"></p>
         <p class="note">Forgot your password? Ask your teacher to reset it.</p>
+        <p class="signupcta">New student? <a href="#signup">Create an account with your class code</a></p>
         <p class="note">Admin: trouble logging in? Open the <a href="#setup">setup check</a>.</p>
         <details class="diag"><summary>Login help (for the admin)</summary><div class="diagout note">Checking…</div></details>
       </form>
@@ -109,8 +110,9 @@ STEM.pages.push({
         ${open.map(e => `<a class="todocard" href="#exam-${E(e.id)}" style="--c:${subj(e.subject_id).color}"><small>Exam waiting</small><b>${E(e.title)}</b><span>${E(subj(e.subject_id).name)}${e.time_limit ? ' · ' + e.time_limit + ' min' : ''}</span></a>`).join('')}
         ${earnable ? `<button class="todocard claim" style="--c:#5a3fa8"><small>New certificate ready</small><b>Collect your certificate</b><span>You reached a new level</span></button>` : ''}
       </div>
-      <div class="mycourses"></div>
+      <div class="mytodo"></div><div class="mycourses"></div>
       ${STEM.progressReport({ status, progress, attempts, certs, exams, self: true })}`;
+    if (STEM.classTodo) STEM.classTodo().then(h => { const b = el.querySelector('.mytodo'); if (b) b.innerHTML = h; });
     if (STEM.coursesSummary) STEM.coursesSummary().then(h => { const b = el.querySelector('.mycourses'); if (b) b.innerHTML = h; });
     const cl = el.querySelector('.claim');
     if (cl) cl.onclick = async () => { try { await store().claimCertificates(); ui.toast('Certificate added!'); location.hash = 'certificates'; } catch (e) { ui.toast(ui.err(e), 'bad'); } };

@@ -13,7 +13,7 @@ const levelFor = s => { let l = 0; if (s.labs_total > 0 && s.labs_opened >= s.la
 
 /* =================================================================== DEMO */
 function demoStore() {
-  const KEY = 'dscDemoDB_v4', SKEY = 'dscDemoSession';
+  const KEY = 'dscDemoDB_v6', SKEY = 'dscDemoSession';
   let db;
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
   const code = (sub, l) => 'DSC-' + (sub === 'all' ? 'STEM-S' : sub.slice(0, 4).toUpperCase() + '-' + l) + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -21,7 +21,7 @@ function demoStore() {
   function seed() {
     const subjects = STEM.DEFAULT_SUBJECTS.map((s, i) => ({ ...s, position: i + 1, published: true }));
     const labs = STEM.SIMS.map((x, i) => ({ id: x.id, subject_id: x.subject, kind: 'builtin', title: x.title, level: x.level, blurb: x.blurb, instructions: '', embed_url: '', position: i + 1, published: true }));
-    labs.push({ id: 'phet-circuit-kit', subject_id: 'electricity', kind: 'embed', title: 'Circuit construction kit (PhET)', level: 'Grade 9–12', blurb: 'Build any circuit you like with wires, batteries, bulbs and switches. A free simulation from the University of Colorado.', instructions: 'Build a circuit with one battery and two bulbs in series. Then rebuild it in parallel. Which bulbs are brighter, and why?', embed_url: 'https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html', position: 30, published: true });
+    labs.push({ id: 'phet-circuit-kit', subject_id: 'physics', kind: 'embed', title: 'Circuit construction kit (PhET)', level: 'Grade 9–12', blurb: 'Build any circuit you like with wires, batteries, bulbs and switches. A free simulation from the University of Colorado.', instructions: 'Build a circuit with one battery and two bulbs in series. Then rebuild it in parallel. Which bulbs are brighter, and why?', embed_url: 'https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html', position: 30, published: true });
     subjects.push({ id: 'coding', name: 'Coding', am: 'ፕሮግራሚንግ', color: '#0e8a8a', description: 'Write real Python in your browser: solve science and maths problems with code, and get your work checked straight away.', position: 5, published: true, ai_enabled: true, ai_instructions: '' });
     STEM.SEED_CODE_LABS.forEach((l, i) => labs.push({ ...l, subject_id: 'coding', kind: 'code', embed_url: '', position: i + 1, published: true }));
     labs.push({ id: 'hands-on-fizz', subject_id: 'chemistry', kind: 'guide', title: 'Hands-on: vinegar and baking soda', level: 'Grade 9', blurb: 'A safe real experiment to do in class after the reaction mixer.', instructions: 'You need: vinegar, baking soda, a clear cup, a spoon, a balloon and a small bottle.\n1. Put two spoons of baking soda in the cup.\n2. Predict what will happen when you add vinegar. Write it down.\n3. Slowly pour in half a cup of vinegar and watch.\n4. Now put baking soda inside a balloon, vinegar in the bottle, and stretch the balloon over the bottle neck.\n5. Lift the balloon so the powder falls in. What fills the balloon?\nSafety: wear goggles and do not taste anything.', embed_url: '', position: 30, published: true });
@@ -39,7 +39,7 @@ function demoStore() {
       Q('Which of these is a sign that a chemical reaction has happened?', ['The liquid is poured', 'A precipitate forms', 'The beaker is moved', 'The lid is closed'], 1),
       Q('Iron displaces copper from copper(II) sulfate because…', ['iron is more reactive than copper', 'copper is more reactive than iron', 'the solution is blue', 'iron is heavier'], 0),
       Q('Lemon juice has a pH of about 2. It is…', ['strongly acidic', 'neutral', 'weakly alkaline', 'strongly alkaline'], 0, 2)]);
-    const elec = addExam({ title: 'Circuits check', subject_id: 'electricity', grade: 'Grade 9–10', description: 'Ohm’s law, series and parallel circuits.', time_limit: 10 }, [
+    const elec = addExam({ title: 'Circuits check', subject_id: 'physics', grade: 'Grade 9–10', description: 'Ohm’s law, series and parallel circuits.', time_limit: 10 }, [
       Q('A 12 V battery drives current through a 4 Ω resistor. What is the current?', ['48 A', '3 A', '0.33 A', '16 A'], 1),
       Q('In a series circuit, the current through each bulb is…', ['the same', 'different', 'zero', 'doubled'], 0),
       Q('Adding another bulb in parallel makes the total resistance…', ['bigger', 'smaller', 'stay the same'], 1)]);
@@ -51,15 +51,15 @@ function demoStore() {
     const progress = [], attempts = [];
     const P = (u, lab, sub, secs, inter) => progress.push({ user_id: u.id, lab_id: lab, subject_id: sub, seconds: secs, interactions: inter, completed: secs >= COMPLETE_SECONDS && inter >= COMPLETE_INTERACTIONS, first_at: nowISO(), last_at: new Date(Date.now() - Math.random() * 5 * 864e5).toISOString() });
     const [ , , abebe, hana, dawit, meron] = users;
-    P(abebe, 'reaction-mixer', 'chemistry', 300, 40); P(abebe, 'ph-scale', 'chemistry', 200, 25); P(abebe, 'hands-on-fizz', 'chemistry', 60, 0); P(abebe, 'circuit-builder', 'electricity', 90, 12);
+    P(abebe, 'reaction-mixer', 'chemistry', 300, 40); P(abebe, 'ph-scale', 'chemistry', 200, 25); P(abebe, 'hands-on-fizz', 'chemistry', 60, 0); P(abebe, 'circuit-builder', 'physics', 90, 12);
     P(hana, 'reaction-mixer', 'chemistry', 150, 15); P(hana, 'predator-prey', 'biology', 400, 30);
-    P(dawit, 'circuit-builder', 'electricity', 500, 60); P(dawit, 'ohms-law', 'electricity', 260, 22); P(dawit, 'phet-circuit-kit', 'electricity', 600, 0);
+    P(dawit, 'circuit-builder', 'physics', 500, 60); P(dawit, 'ohms-law', 'physics', 260, 22); P(dawit, 'phet-circuit-kit', 'physics', 600, 0);
     P(meron, 'graph-transformer', 'math', 180, 40);
     const A = (u, exam, pct) => { const qs = questions.filter(q => q.exam_id === exam); const max = qs.reduce((s, q) => s + q.points, 0); const score = Math.round(max * pct / 100); let left = score; const detail = qs.map(q => { const ok = left >= q.points; if (ok) left -= q.points; return { id: q.id, chosen: ok ? q.answer : (q.answer + 1) % q.options.length, correct: ok }; }); attempts.push({ id: uid(), exam_id: exam, user_id: u.id, answers: {}, detail, score, max_score: max, percent: Math.round(1000 * score / max) / 10, passed: 100 * score / max >= 60, started_at: nowISO(), submitted_at: new Date(Date.now() - Math.random() * 4 * 864e5).toISOString() }); };
     A(abebe, chem, 83); A(hana, chem, 50); A(dawit, elec, 100); A(meron, chem, 66);
     const c1 = uid(), c2 = uid(), L = (course_id, position, title, body, lab_id = '', minutes = 10, exam_id = null) => ({ id: uid(), course_id, position, title, body, video_url: '', resources: '', lab_id, exam_id, minutes });
     const courses = [
-      { id: c1, title: 'Electricity basics', subject_id: 'electricity', grade: 'Grade 9–10', description: 'Current, voltage and resistance in four short lessons, with simulations, a coding task, an assignment and an exam.', color: '#e9a400', published: true, position: 1, created_at: nowISO() },
+      { id: c1, title: 'Electricity basics', subject_id: 'physics', grade: 'Grade 9–10', description: 'Current, voltage and resistance in four short lessons, with simulations, a coding task, an assignment and an exam.', color: '#e9a400', published: true, position: 1, created_at: nowISO() },
       { id: c2, title: 'Start coding with Python', subject_id: 'coding', grade: 'Grade 9', description: 'Your first steps in Python: variables, functions and loops, all in the browser.', color: '#0e8a8a', published: true, position: 2, created_at: nowISO() }];
     const lessons = [
       L(c1, 1, 'What is electric current?', 'Electric current is a flow of electric charge. In metal wires, the charges that move are tiny particles called electrons.\nWe measure current in amperes (A) with an ammeter.\nKey ideas:\n- A circuit must be a complete loop for current to flow.\n- A switch opens or closes the loop.\n- More current through a bulb makes it brighter.\nOpen the circuit builder and open and close the switch. Watch the electrons stop and start.', 'circuit-builder'),
@@ -72,7 +72,17 @@ function demoStore() {
     const assignments = [{ id: uid(), course_id: c1, position: 1, title: 'Electricity at home', instructions: 'Look at the electrical things in your home or school.\n1. Name three devices and say what they change electrical energy into.\n2. Are the lights in your home in series or in parallel? How do you know?\n3. Give one rule for using electricity safely.', due_date: null, points: 10, published: true, created_at: nowISO() }];
     const lesson_progress = [lessons[0], lessons[1]].map(l => ({ user_id: abebe.id, lesson_id: l.id, course_id: c1, completed_at: nowISO() }));
     const submissions = [{ id: uid(), assignment_id: assignments[0].id, user_id: hana.id, answer: '1. TV: light and sound. Iron: heat. Fan: movement.\n2. Parallel, because when one bulb breaks the others stay on.\n3. Never touch sockets with wet hands.', submitted_at: nowISO(), grade: null, feedback: '', graded_at: null }];
-    return { courses, lessons, lesson_progress, assignments, submissions, settings: { ai: { enabled: true, student_daily: 20, teacher_daily: 100 }, ai_models: STEM.DEFAULT_AI_MODELS }, aiUsage: [], subjects, labs, news: [
+    const cls1 = { id: uid(), name: 'Grade 10 Science', subject_id: 'physics', grade: 'Grade 10', description: 'Our weekly STEM club group for grade 10.', color: '#1f3f99', code: 'TANA26', owner_id: teacher, archived: false, created_at: nowISO() };
+    const classes = [cls1], class_members = [{ class_id: cls1.id, user_id: teacher, role: 'teacher', joined_at: nowISO() }, ...[abebe, dawit, hana].map(u => ({ class_id: cls1.id, user_id: u.id, role: 'student', joined_at: nowISO() }))];
+    const ago = d => new Date(Date.now() - d * 864e5).toISOString(), soon = d => new Date(Date.now() + d * 864e5).toISOString().slice(0, 10);
+    const class_posts = [
+      { id: uid(), class_id: cls1.id, author_id: teacher, kind: 'announcement', title: '', body: 'Welcome to our class page! Check Classwork for this week’s tasks, and ask questions in the comments.', ref_id: '', link: '', due_date: null, created_at: ago(3) },
+      { id: uid(), class_id: cls1.id, author_id: teacher, kind: 'course', title: 'Electricity basics', body: 'Work through all four lessons.', ref_id: c1, link: '', due_date: soon(7), created_at: ago(2) },
+      { id: uid(), class_id: cls1.id, author_id: teacher, kind: 'lab', title: 'Projectile motion: launch and land', body: 'Find the angle that gives the longest throw. Write it in the comments!', ref_id: 'projectile-motion', link: '', due_date: soon(3), created_at: ago(1) },
+      { id: uid(), class_id: cls1.id, author_id: teacher, kind: 'exam', title: 'Circuits check', body: 'Take this after lesson 3.', ref_id: elec, link: '', due_date: soon(10), created_at: ago(1) },
+      { id: uid(), class_id: cls1.id, author_id: teacher, kind: 'assignment', title: 'Electricity at home', body: '', ref_id: assignments[0].id, link: '', due_date: soon(5), created_at: ago(0.5) }];
+    const post_comments = [{ id: uid(), post_id: class_posts[2].id, author_id: dawit.id, body: '45 degrees went the furthest!', created_at: ago(0.3) }];
+    return { classes, class_members, class_posts, post_comments, courses, lessons, lesson_progress, assignments, submissions, settings: { ai: { enabled: true, student_daily: 20, teacher_daily: 100 }, ai_models: STEM.DEFAULT_AI_MODELS }, aiUsage: [], subjects, labs, news: [
       { id: uid(), date: new Date().toISOString().slice(0, 10), tag: 'News', title: 'Student accounts are here', body: 'Log in to track your lab progress, take exams and earn Dangila STEM certificates.', link: '#login', link_text: 'Log in' },
       { id: uid(), date: new Date(Date.now() + 864e5).toISOString().slice(0, 10), tag: 'Sample', title: 'Weekly club session (sample notice: edit this)', body: 'Replace this with your real meeting day, time and room.', link: '#chemistry', link_text: 'Open the chemistry lab' }],
       users, progress, exams, questions, attempts, certificates: [] };
@@ -142,6 +152,38 @@ function demoStore() {
     saveSettings: (key, value) => run(() => { need('admin'); db.settings = { ...(db.settings || {}), [key]: value }; save(); }),
     aiUsage: () => run(() => { need('staff'); return []; }),
     ai: () => Promise.reject(new Error('The AI works on the live site once it is set up (see SETUP.md). In demo mode there is no AI connection.')),
+    // ----- classes -----
+    listClasses: () => run(() => { need(); return db.classes.filter(c => isStaff() || db.class_members.some(m => m.class_id === c.id && m.user_id === me.id)).map(c => ({ ...c, member_count: db.class_members.filter(m => m.class_id === c.id && m.role === 'student').length })).sort((a, b) => b.created_at.localeCompare(a.created_at)); }),
+    getClass: id => run(() => {
+      need(); const cls = db.classes.find(c => c.id === id); if (!cls || !(isStaff() || db.class_members.some(m => m.class_id === id && m.user_id === me.id))) throw new Error('Class not found');
+      const people = db.class_members.filter(m => m.class_id === id).map(m => { const u = db.users.find(x => x.id === m.user_id) || {}; return { user_id: m.user_id, full_name: u.full_name, username: isStaff() ? u.username : '', grade: u.grade, role: m.role, joined_at: m.joined_at }; });
+      const posts = db.class_posts.filter(p => p.class_id === id).sort((a, b) => b.created_at.localeCompare(a.created_at));
+      const ids = new Set(posts.map(p => p.id)), comments = db.post_comments.filter(c => ids.has(c.post_id)).sort((a, b) => a.created_at.localeCompare(b.created_at));
+      return { cls, people, posts, comments, authors: Object.fromEntries(db.users.map(u => [u.id, u.full_name])) };
+    }),
+    saveClass: c => run(() => { need('staff'); if (c.id) { const i = db.classes.findIndex(x => x.id === c.id); db.classes[i] = { ...db.classes[i], ...c }; save(); return c.id; }
+      const id = uid(), code = Array.from({ length: 6 }, () => 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 31)]).join('');
+      db.classes.push({ archived: false, ...c, id, code, owner_id: me.id, created_at: nowISO() }); db.class_members.push({ class_id: id, user_id: me.id, role: 'teacher', joined_at: nowISO() }); save(); return id; }),
+    deleteClass: id => run(() => { need('staff'); const pids = new Set(db.class_posts.filter(p => p.class_id === id).map(p => p.id)); db.classes = db.classes.filter(c => c.id !== id); db.class_members = db.class_members.filter(m => m.class_id !== id); db.class_posts = db.class_posts.filter(p => p.class_id !== id); db.post_comments = db.post_comments.filter(c => !pids.has(c.post_id)); save(); }),
+    resetClassCode: id => run(() => { need('staff'); const c = db.classes.find(x => x.id === id); c.code = Array.from({ length: 6 }, () => 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 31)]).join(''); save(); return c.code; }),
+    joinClass: code => run(() => { need(); const c = db.classes.find(x => x.code === String(code).trim().toUpperCase() && !x.archived); if (!c) throw new Error('No class has that code. Check it with your teacher.');
+      if (!db.class_members.some(m => m.class_id === c.id && m.user_id === me.id)) db.class_members.push({ class_id: c.id, user_id: me.id, role: isStaff() ? 'teacher' : 'student', joined_at: nowISO() }); save(); return c; }),
+    leaveClass: id => run(() => { need(); db.class_members = db.class_members.filter(m => !(m.class_id === id && m.user_id === me.id)); save(); }),
+    addClassMembers: (id, userIds) => run(() => { need('staff'); userIds.forEach(u => { if (!db.class_members.some(m => m.class_id === id && m.user_id === u)) db.class_members.push({ class_id: id, user_id: u, role: 'student', joined_at: nowISO() }); }); save(); }),
+    removeClassMember: (id, userId) => run(() => { need('staff'); db.class_members = db.class_members.filter(m => !(m.class_id === id && m.user_id === userId)); save(); }),
+    savePost: p => run(() => { need('staff'); if (p.id) { const i = db.class_posts.findIndex(x => x.id === p.id); db.class_posts[i] = { ...db.class_posts[i], ...p }; save(); return p.id; } const id = uid(); db.class_posts.push({ title: '', body: '', ref_id: '', link: '', due_date: null, ...p, id, author_id: me.id, created_at: nowISO() }); save(); return id; }),
+    deletePost: id => run(() => { need('staff'); db.class_posts = db.class_posts.filter(p => p.id !== id); db.post_comments = db.post_comments.filter(c => c.post_id !== id); save(); }),
+    addComment: (postId, body) => run(() => { need(); db.post_comments.push({ id: uid(), post_id: postId, author_id: me.id, body: String(body).slice(0, 2000), created_at: nowISO() }); save(); }),
+    deleteComment: id => run(() => { need(); const c = db.post_comments.find(x => x.id === id); if (c && (isStaff() || c.author_id === me.id)) db.post_comments = db.post_comments.filter(x => x.id !== id); save(); }),
+    signup: d => run(() => {
+      if ((db.settings.signup || {}).enabled === false) throw new Error('Sign-up is closed. Ask your teacher to create your login.');
+      const c = db.classes.find(x => x.code === String(d.code || '').trim().toUpperCase()); if (!c) throw new Error('No class has that code. Check it with your teacher.');
+      const username = String(d.username || '').toLowerCase().replace(/[^a-z0-9._-]+/g, ''); if (username.length < 3) throw new Error('Choose a username with at least 3 letters or numbers.');
+      if (String(d.password || '').length < 6) throw new Error('Choose a password with at least 6 characters.');
+      if (db.users.some(u => u.username === username)) throw new Error(`The username “${username}” is already taken.`);
+      const u = { id: uid(), username, password: d.password, full_name: String(d.full_name || '').trim(), role: 'student', grade: d.grade || '', created_at: nowISO() };
+      db.users.push(u); db.class_members.push({ class_id: c.id, user_id: u.id, role: 'student', joined_at: nowISO() }); save(); return { ok: true, username, class_name: c.name };
+    }),
     aiModels: () => ok((db.settings.ai_models || STEM.DEFAULT_AI_MODELS).filter(m => m.enabled !== false && (!m.staff_only || isStaff()))),
 
     listCourses: () => run(() => { need(); return db.courses.filter(c => c.published || isStaff()).sort((a, b) => a.position - b.position); }),
@@ -316,6 +358,32 @@ function liveStore() {
     saveSettings: (key, value) => q(sb.from('app_settings').upsert({ key, value })),
     aiUsage: () => q(sb.from('ai_usage').select('*').eq('day', new Date().toISOString().slice(0, 10))),
     async aiModels() { try { return (await this.ai({ mode: 'models' })).models; } catch (e) { return STEM.DEFAULT_AI_MODELS.filter(m => !m.staff_only); } },
+    async listClasses() {
+      const cls = await q(sb.from('classes').select('*').order('created_at', { ascending: false }));
+      const mem = cls.length ? await q(sb.from('class_members').select('class_id,role').in('class_id', cls.map(c => c.id))) : [];
+      return cls.map(c => ({ ...c, member_count: mem.filter(m => m.class_id === c.id && m.role === 'student').length }));
+    },
+    async getClass(id) {
+      const [cls] = await q(sb.from('classes').select('*').eq('id', id)); if (!cls) throw new Error('Class not found');
+      const [people, posts] = await Promise.all([rpc('class_people', { p_class: id }), q(sb.from('class_posts').select('*').eq('class_id', id).order('created_at', { ascending: false }))]);
+      const comments = posts.length ? await q(sb.from('post_comments').select('*').in('post_id', posts.map(p => p.id)).order('created_at')) : [];
+      return { cls, people, posts, comments, authors: Object.fromEntries(people.map(p => [p.user_id, p.full_name])) };
+    },
+    async saveClass(c) { const { id, member_count, ...f } = c; if (id) { await q(sb.from('classes').update(f).eq('id', id)); return id; } const rows = await q(sb.from('classes').insert(f).select('id')); return rows[0].id; },
+    deleteClass: id => q(sb.from('classes').delete().eq('id', id)),
+    resetClassCode: id => rpc('reset_class_code', { p_class: id }),
+    joinClass: code => rpc('join_class', { p_code: code }),
+    leaveClass: id => q(sb.from('class_members').delete().eq('class_id', id).eq('user_id', me.id)),
+    addClassMembers: (id, userIds) => q(sb.from('class_members').upsert(userIds.map(u => ({ class_id: id, user_id: u, role: 'student' })), { onConflict: 'class_id,user_id', ignoreDuplicates: true })),
+    removeClassMember: (id, userId) => q(sb.from('class_members').delete().eq('class_id', id).eq('user_id', userId)),
+    async savePost(p) { const { id, ...f } = p; if (id) { await q(sb.from('class_posts').update(f).eq('id', id)); return id; } const rows = await q(sb.from('class_posts').insert(f).select('id')); return rows[0].id; },
+    deletePost: id => q(sb.from('class_posts').delete().eq('id', id)),
+    addComment: (postId, body) => q(sb.from('post_comments').insert({ post_id: postId, author_id: me.id, body: String(body).slice(0, 2000) })),
+    deleteComment: id => q(sb.from('post_comments').delete().eq('id', id)),
+    async signup(d) {
+      let r; try { r = await fetch('/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) }); } catch (e) { throw new Error('Could not reach the server. Check your internet connection.'); }
+      const out = await r.json().catch(() => ({ error: 'The server did not answer.' })); if (!r.ok || out.error) throw new Error(out.error || 'Sign-up failed'); return out;
+    },
     listCourses: () => q(sb.from('courses').select('*').order('position')),
     async getCourse(id) {
       const [course] = await q(sb.from('courses').select('*').eq('id', id)); if (!course) throw new Error('Course not found');

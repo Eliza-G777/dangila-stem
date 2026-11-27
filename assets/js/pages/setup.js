@@ -25,7 +25,8 @@ STEM.pages.push({
       items.push(row(h.anonOk, 'Supabase accepts the anon key', 'The anon key or URL is wrong, or they come from two different Supabase projects. Copy both again from the same project.'));
       items.push(row(v.SUPABASE_SERVICE_ROLE_KEY, 'Netlify variable SUPABASE_SERVICE_ROLE_KEY', 'Add it (mark it secret): the service_role key from the same Legacy API keys page.'));
       items.push(row(h.serviceOk, 'Supabase accepts the service_role key', 'The service_role key is wrong or from another project. Copy it again, save it in Netlify and redeploy.'));
-      items.push(row(h.schema, 'Database tables (schema.sql)', 'In Supabase → SQL Editor, run all of supabase/schema.sql.'));
+      items.push(row(h.schema, `Database tables (schema.sql)${h.project ? ` in project <code>${E(h.project)}</code>` : ''}`,
+        `Run supabase/ALL_IN_ONE.sql in the SQL Editor of <b>this</b> project. Check that the Supabase page address contains <code>/project/${E(h.project || '…')}</code>: if it shows a different code, you are in another project.${h.schemaWhy && typeof h.schemaWhy === 'string' ? `<br><small>Details: ${E(h.schemaWhy)}${/404|PGRST|schema cache/i.test(h.schemaWhy) ? ' (if you already ran the SQL in this project, wait one minute and reload: Supabase needs a moment to see new tables)' : ''}</small>` : ''}`));
       items.push(row(h.phase2, 'Phase 2 tables: AI tutor and coding (phase2.sql)', 'Run supabase/phase2.sql in the SQL Editor (after schema.sql).'));
       items.push(row(h.phase3, 'Phase 3 tables: courses and assignments (phase3.sql)', 'Run supabase/phase3.sql in the SQL Editor (after phase2.sql).'));
       items.push(row(h.admins == null ? null : h.admins > 0, `Admin account${h.admins ? `: ${h.admins} found` : ''}`, 'Create it with the form below.'));

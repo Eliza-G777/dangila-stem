@@ -12,8 +12,8 @@ STEM.renderNav = () => {
   $('#nav').innerHTML = `<a href="#home">Home</a>` + STEM.state.subjects.filter(s => s.published !== false).map(s => `<a href="#${E(s.id)}"><i style="background:${E(s.color)}"></i>${E(s.name)}</a>`).join('') + `<a href="#club">Club</a>`;
   $('#acctBtn').innerHTML = u ? `<a class="btn y sm" href="#dashboard">${E((u.full_name || u.username).split(' ')[0])}</a>` : `<a class="btn y sm" href="#login">Log in</a>`;
   const links = !u ? [] : u.role === 'student'
-    ? [['dashboard', 'My progress'], ['learn', 'Courses'], ['exams', 'Exams'], ['ai', 'AI Studio'], ['certificates', 'Certificates']]
-    : [['dashboard', 'Overview'], ['students', 'Students'], ['learn', 'Courses'], ['exams', 'Exam builder'], ['ai', 'AI Studio'], ['admin', u.role === 'admin' ? 'Admin' : 'Notices']];
+    ? [['dashboard', 'My progress'], ['classes', 'Classes'], ['learn', 'Courses'], ['exams', 'Exams'], ['ai', 'AI Studio'], ['certificates', 'Certificates']]
+    : [['dashboard', 'Overview'], ['classes', 'Classes'], ['students', 'Students'], ['learn', 'Courses'], ['exams', 'Exam builder'], ['ai', 'AI Studio'], ['admin', u.role === 'admin' ? 'Admin' : 'Notices']];
   $('#acct').hidden = !u;
   $('#acct').innerHTML = u ? `<div class="wrap"><span class="who">${E(u.full_name || u.username)} <small>${E(u.role)}${u.grade ? ' · ' + E(u.grade) : ''}</small></span><nav>${links.map(([h, t]) => `<a href="#${h}">${t}</a>`).join('')}<button class="linkbtn out">Log out</button></nav></div>` : '';
   const out = $('#acct .out'); if (out) out.onclick = async () => { await store.signOut(); ui.toast('Logged out'); location.hash = 'home'; };
@@ -87,8 +87,6 @@ store.onChange(async u => {
   if (u) { const next = sessionStorage.getItem('dscNext'); if (next) { sessionStorage.removeItem('dscNext'); location.hash = next; } }
 });
 STEM.renderNav();
-document.querySelectorAll('.themebtn').forEach(b => b.onclick = () => STEM.theme.toggle());
-document.querySelectorAll('.langbtn').forEach(b => b.onclick = () => STEM.i18n.set(STEM.i18n.lang === 'am' ? 'en' : 'am'));
 STEM.theme.apply();
 await STEM.route();
 STEM.i18n.set(STEM.i18n.lang);

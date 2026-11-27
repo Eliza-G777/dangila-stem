@@ -9,7 +9,8 @@
 //   { action: "role",   user_id, role }        (admin only)
 //   { action: "delete", user_id }              (admin only)
 
-const SB_URL = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+const normUrl = u => { u = String(u || '').trim(); const m = /https?:\/\/([a-z0-9-]+)\.supabase\.co/i.exec(u); if (m) return `https://${m[1].toLowerCase()}.supabase.co`; const d = /supabase\.com\/dashboard\/project\/([a-z0-9]+)/i.exec(u); if (d) return `https://${d[1].toLowerCase()}.supabase.co`; return u.replace(/\/+$/, ''); };
+const SB_URL = normUrl(process.env.SUPABASE_URL);
 const KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 const DOMAIN = process.env.LOGIN_DOMAIN || 'dangila-stem.netlify.app';
 

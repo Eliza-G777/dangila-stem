@@ -8,7 +8,8 @@
 //   { mode: "studio",    tool, model, messages, lang, subject_id? }           → { reply | cards | questions, model }
 //   { mode: "models" }                                                        → { models }  (free, no quota)
 
-const SB_URL = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+const normUrl = u => { u = String(u || '').trim(); const m = /https?:\/\/([a-z0-9-]+)\.supabase\.co/i.exec(u); if (m) return `https://${m[1].toLowerCase()}.supabase.co`; const d = /supabase\.com\/dashboard\/project\/([a-z0-9]+)/i.exec(u); if (d) return `https://${d[1].toLowerCase()}.supabase.co`; return u.replace(/\/+$/, ''); };
+const SB_URL = normUrl(process.env.SUPABASE_URL);
 const KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 const DEFAULT_MODEL = process.env.AI_MODEL || 'claude-haiku-5-5';
 const DEFAULT_MODELS = [

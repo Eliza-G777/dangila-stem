@@ -1,22 +1,200 @@
 {
-  "chemistry": [
-    { "q": "An acid reacts with a carbonate (like baking soda). What forms?", "options": ["A salt and hydrogen", "A salt, water and carbon dioxide", "Only water"], "answer": 1, "why": "Acid + carbonate → salt + water + carbon dioxide. The fizzing is CO₂ escaping." },
-    { "q": "What is the pH of pure water?", "options": ["0", "7", "14"], "answer": 1, "why": "Pure water is neutral, pH 7." },
-    { "q": "An iron nail in copper(II) sulfate gets coated in copper. Why?", "options": ["Iron is more reactive than copper", "Copper is more reactive than iron", "The solution is heated"], "answer": 0, "why": "A more reactive metal displaces a less reactive metal from its salt solution." }
-  ],
-  "electricity": [
-    { "q": "Two bulbs are in series. How does the current through them compare?", "options": ["It is the same in both", "It is bigger in the first bulb", "It splits between them"], "answer": 0, "why": "A series circuit has only one path, so the same current flows everywhere." },
-    { "q": "A 6 V battery is connected to a 3 Ω resistor. What is the current?", "options": ["18 A", "0.5 A", "2 A"], "answer": 2, "why": "I = V ÷ R = 6 ÷ 3 = 2 A." },
-    { "q": "You add another bulb in parallel. What happens to the total resistance?", "options": ["It goes up", "It goes down", "It stays the same"], "answer": 1, "why": "Each new parallel path gives current another way through, so total resistance decreases." }
-  ],
-  "biology": [
-    { "q": "In diffusion, particles move from…", "options": ["low to high concentration", "high to low concentration", "only into cells"], "answer": 1, "why": "Random movement spreads particles from where there are many to where there are few." },
-    { "q": "Why does the lion population peak after the antelope population?", "options": ["Lions need time to feed and raise young after food increases", "Lions and antelope breed at exactly the same time", "Antelope eat lions"], "answer": 0, "why": "More prey means more food, but new predators take time to be born and grow." },
-    { "q": "What happens to diffusion when temperature rises?", "options": ["It gets slower", "It stops", "It gets faster"], "answer": 2, "why": "Particles have more kinetic energy and move faster at higher temperatures." }
-  ],
-  "math": [
-    { "q": "Compared with y = x², the graph of y = (x − 3)² is…", "options": ["shifted 3 units right", "shifted 3 units left", "shifted 3 units up"], "answer": 0, "why": "Replacing x with (x − h) shifts the graph h units to the right." },
-    { "q": "What is sin 90°?", "options": ["0", "1", "−1"], "answer": 1, "why": "At 90° the point on the unit circle is at the top, height 1." },
-    { "q": "Which total is most likely when rolling two dice?", "options": ["2", "7", "12"], "answer": 1, "why": "7 can be made in 6 of the 36 possible ways, more than any other total." }
-  ]
+ "chemistry": [
+  {
+   "q": "An acid reacts with a carbonate (like baking soda). What forms?",
+   "options": [
+    "A salt and hydrogen",
+    "A salt, water and carbon dioxide",
+    "Only water"
+   ],
+   "answer": 1,
+   "why": "Acid + carbonate → salt + water + carbon dioxide. The fizzing is CO₂ escaping."
+  },
+  {
+   "q": "What is the pH of pure water?",
+   "options": [
+    "0",
+    "7",
+    "14"
+   ],
+   "answer": 1,
+   "why": "Pure water is neutral, pH 7."
+  },
+  {
+   "q": "An iron nail in copper(II) sulfate gets coated in copper. Why?",
+   "options": [
+    "Iron is more reactive than copper",
+    "Copper is more reactive than iron",
+    "The solution is heated"
+   ],
+   "answer": 0,
+   "why": "A more reactive metal displaces a less reactive metal from its salt solution."
+  },
+  {
+   "q": "Why does a higher temperature make a reaction faster?",
+   "options": [
+    "Particles get bigger",
+    "Particles move faster, so more collisions have enough energy",
+    "There are more particles"
+   ],
+   "answer": 1,
+   "why": "Faster particles collide more often and more of the collisions reach the activation energy."
+  },
+  {
+   "q": "What is the balanced equation for making water?",
+   "options": [
+    "H₂ + O₂ → H₂O",
+    "2H₂ + O₂ → 2H₂O",
+    "H₂ + 2O₂ → 2H₂O"
+   ],
+   "answer": 1,
+   "why": "4 hydrogen atoms and 2 oxygen atoms on each side."
+  }
+ ],
+ "biology": [
+  {
+   "q": "In diffusion, particles move from…",
+   "options": [
+    "low to high concentration",
+    "high to low concentration",
+    "only into cells"
+   ],
+   "answer": 1,
+   "why": "Random movement spreads particles from where there are many to where there are few."
+  },
+  {
+   "q": "Why does the lion population peak after the antelope population?",
+   "options": [
+    "Lions need time to feed and raise young after food increases",
+    "Lions and antelope breed at exactly the same time",
+    "Antelope eat lions"
+   ],
+   "answer": 0,
+   "why": "More prey means more food, but new predators take time to be born and grow."
+  },
+  {
+   "q": "What happens to diffusion when temperature rises?",
+   "options": [
+    "It gets slower",
+    "It stops",
+    "It gets faster"
+   ],
+   "answer": 2,
+   "why": "Particles have more kinetic energy and move faster at higher temperatures."
+  },
+  {
+   "q": "Which chamber of the heart pumps blood to the whole body?",
+   "options": [
+    "Right atrium",
+    "Left ventricle",
+    "Right ventricle"
+   ],
+   "answer": 1,
+   "why": "The left ventricle has the thickest wall and pumps blood into the aorta."
+  },
+  {
+   "q": "Which part do plant cells have but animal cells do not?",
+   "options": [
+    "Nucleus",
+    "Mitochondria",
+    "Chloroplasts"
+   ],
+   "answer": 2,
+   "why": "Chloroplasts carry out photosynthesis; only plant cells have them."
+  }
+ ],
+ "math": [
+  {
+   "q": "Compared with y = x², the graph of y = (x − 3)² is…",
+   "options": [
+    "shifted 3 units right",
+    "shifted 3 units left",
+    "shifted 3 units up"
+   ],
+   "answer": 0,
+   "why": "Replacing x with (x − h) shifts the graph h units to the right."
+  },
+  {
+   "q": "What is sin 90°?",
+   "options": [
+    "0",
+    "1",
+    "−1"
+   ],
+   "answer": 1,
+   "why": "At 90° the point on the unit circle is at the top, height 1."
+  },
+  {
+   "q": "Which total is most likely when rolling two dice?",
+   "options": [
+    "2",
+    "7",
+    "12"
+   ],
+   "answer": 1,
+   "why": "7 can be made in 6 of the 36 possible ways, more than any other total."
+  }
+ ],
+ "physics": [
+  {
+   "q": "Two bulbs are in series. How does the current through them compare?",
+   "options": [
+    "It is the same in both",
+    "It is bigger in the first bulb",
+    "It splits between them"
+   ],
+   "answer": 0,
+   "why": "A series circuit has only one path, so the same current flows everywhere."
+  },
+  {
+   "q": "A 6 V battery is connected to a 3 Ω resistor. What is the current?",
+   "options": [
+    "18 A",
+    "0.5 A",
+    "2 A"
+   ],
+   "answer": 2,
+   "why": "I = V ÷ R = 6 ÷ 3 = 2 A."
+  },
+  {
+   "q": "You add another bulb in parallel. What happens to the total resistance?",
+   "options": [
+    "It goes up",
+    "It goes down",
+    "It stays the same"
+   ],
+   "answer": 1,
+   "why": "Each new parallel path gives current another way through, so total resistance decreases."
+  },
+  {
+   "q": "A ball is thrown on flat ground. Which launch angle gives the longest range (no air resistance)?",
+   "options": [
+    "30°",
+    "45°",
+    "60°"
+   ],
+   "answer": 1,
+   "why": "Range depends on sin(2θ), which is biggest when 2θ = 90°, so θ = 45°."
+  },
+  {
+   "q": "What happens to the period of a pendulum if you make the bob heavier?",
+   "options": [
+    "It gets longer",
+    "It gets shorter",
+    "It stays the same"
+   ],
+   "answer": 2,
+   "why": "T = 2π√(L/g) does not include mass."
+  },
+  {
+   "q": "A 10 kg box has a net force of 20 N on it. What is its acceleration?",
+   "options": [
+    "2 m/s²",
+    "200 m/s²",
+    "0.5 m/s²"
+   ],
+   "answer": 0,
+   "why": "a = F ÷ m = 20 ÷ 10 = 2 m/s²."
+  }
+ ]
 }

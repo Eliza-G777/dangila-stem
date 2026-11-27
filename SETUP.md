@@ -13,11 +13,8 @@ You never need to edit `assets/js/config.js`. All settings go into Netlify.
 
 ## 2. Prepare the database (Supabase)
 
-1. In your Supabase project open **SQL Editor → New query**. Run these three files **in this order**, pasting each one in full and clicking **Run** (each should say "Success"):
-   1. `supabase/schema.sql`: accounts, labs, exams, certificates
-   2. `supabase/phase2.sql`: AI tutor and coding
-   3. `supabase/phase3.sql`: courses, assignments, AI Studio models
-   It is safe to run them again.
+1. In your Supabase project open **SQL Editor → New query**. Paste **all** of `supabase/ALL_IN_ONE.sql` and click **Run**. The last result must say **club_tables_found = 19**.
+   It is safe to run again. Run it again after every update that changes the database. It contains `schema.sql`, `phase2.sql`, `phase3.sql`, `phase4.sql` and `permissions.sql`.
 2. **Authentication → Sign In / Providers**: turn **off** "Allow new users to sign up". Under **Email**, turn **off** "Confirm email".
 3. **Project Settings → API Keys → Legacy API keys** (and **Data API** for the URL): keep this page open for step 3.
 
@@ -61,6 +58,10 @@ Then:
 
 | Task | Where |
 |---|---|
+| Create a class and get its join code | Classes → + New class |
+| Post an announcement, add classwork with a due date | Class → Stream / Classwork |
+| See a class gradebook | Class → Grades (Download CSV) |
+| Let students sign up themselves (on/off) | Admin → Users (tick box at the top) |
 | Switch language English ↔ Amharic | **አማርኛ / English** button at the top |
 | Day or night mode | ☾ / ☀ button at the top |
 | Create a course with lessons, videos, labs, exams and assignments | Courses → + New course |
@@ -80,7 +81,13 @@ Then:
 
 All Amharic text is in `assets/js/i18n.js`, in the list called `AM`, as `'English on screen': 'Amharic'`. Edit any line on GitHub to improve a translation, or add new lines. Text people type (notices, course and lab titles) shows as it was written. To show something in both languages, write it in both.
 
+## Students signing up
+
+Students open the login page and choose **Create an account with your class code**. They type the class code, their name, grade, a username and a password, and they are added to that class straight away. Teachers can still create accounts in bulk (Students → Add students). To stop self sign-up, untick the box in Admin → Users.
+
 ## If something goes wrong
+
+- **A button does nothing after an update**: the browser is still using old files. Press **Ctrl + Shift + R** (or clear the browser cache) once.
 
 Open **/#setup** first: it checks every connection.
 - **Website mode: DEMO**: `SUPABASE_URL` or `SUPABASE_ANON_KEY` is missing in Netlify, or you didn't redeploy after adding them.

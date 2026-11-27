@@ -107,6 +107,28 @@ const AM = {
   'Move graphs with sliders, spin the unit circle, and test probability with dice.': 'ግራፎችን በተንሸራታቾች አንቀሳቅሱ፣ የአሃድ ክብን አሽከርክሩ፣ ዕድልን በዳይስ ፈትሹ።',
   'Write real Python in your browser: solve science and maths problems with code, and get your work checked straight away.': 'በብራውዘራችሁ እውነተኛ ፓይተን ጻፉ፤ የሳይንስና የሒሳብ ችግሮችን በኮድ ፍቱ፣ ሥራችሁም ወዲያውኑ ይፈተሻል።',
 
+  // classroom and sign-up
+  'Classes': 'ክፍሎች', 'Stream': 'መልእክቶች', 'Classwork': 'የክፍል ሥራ', 'People': 'አባላት', 'Grades': 'ውጤቶች', 'Join class': 'ክፍሉን ተቀላቀል', 'Class code': 'የክፍል ኮድ',
+  '+ New class': '+ አዲስ ክፍል', '+ Create classwork': '+ የክፍል ሥራ ፍጠር', 'Post': 'ለጥፍ', 'Upcoming': 'የሚመጡ', 'Nothing due soon.': 'በቅርቡ የሚደርስ ሥራ የለም።',
+  'Teachers': 'መምህራን', 'Leave this class': 'ከዚህ ክፍል ውጣ', 'Open course': 'ኮርሱን ክፈት', 'Open exam': 'ፈተናውን ክፈት', 'Open assignment': 'የቤት ሥራውን ክፈት', 'Open lab': 'ቤተ ሙከራውን ክፈት',
+  'To do from my classes': 'ከክፍሎቼ የሚጠበቁ ሥራዎች', 'All caught up!': 'ሁሉንም ጨርሰዋል!', 'Create a student account': 'የተማሪ መለያ ይፍጠሩ', 'Create my account': 'መለያዬን ፍጠር',
+  'Full name': 'ሙሉ ስም', 'Choose a username': 'የተጠቃሚ ስም ይምረጡ', 'Choose a password': 'የይለፍ ቃል ይምረጡ', 'Type the password again': 'የይለፍ ቃሉን እንደገና ይጻፉ',
+  'Create an account with your class code': 'በክፍል ኮድዎ መለያ ይፍጠሩ', 'New student?': 'አዲስ ተማሪ ነዎት?', 'You need the class code from your teacher.': 'ከመምህርዎ የክፍል ኮድ ያስፈልግዎታል።',
+  'Not taken': 'አልተወሰደም', 'Not submitted': 'አልገባም', 'Edit class': 'ክፍሉን አስተካክል', 'New code': 'አዲስ ኮድ', '← Classes': '← ክፍሎች',
+  // new labs
+  'Physics lab': 'የፊዚክስ ቤተ ሙከራ', 'Projectile motion: launch and land': 'የተወረወረ ነገር እንቅስቃሴ', 'Pendulum and energy': 'ፔንዱለምና ኃይል', 'Forces and motion: F = m × a': 'ኃይልና እንቅስቃሴ፡ F = m × a',
+  'Human body explorer': 'የሰው አካል ዳሰሳ', 'Inside the heart': 'የልብ ውስጣዊ ክፍል', 'Cell explorer: animal and plant cells': 'የሕዋስ ዳሰሳ፡ የእንስሳና የዕፅዋት ሕዋሳት',
+  'Reactions up close: collision theory': 'ኬሚካላዊ ምላሽ በቅርበት፡ የግጭት ንድፈ ሐሳብ', 'Balancing chemical equations': 'የኬሚካል እኩልታዎችን ማመጣጠን',
+  'Launch': 'ወርውር', 'Clear paths': 'መንገዶቹን አጽዳ', 'New target': 'አዲስ ዒላማ', 'Launch angle': 'የመወርወሪያ ማዕዘን', 'Launch speed': 'የመወርወሪያ ፍጥነት', 'Planet': 'ፕላኔት',
+  'Release': 'ልቀቅ', 'String length': 'የገመድ ርዝመት', 'Mass of the box': 'የሳጥኑ ክብደት', 'Surface': 'ወለል', 'Stop the box': 'ሳጥኑን አቁም', 'Friction': 'ሰበቃ', 'Net force': 'ተጣማሪ ኃይል',
+  'Acceleration': 'ፍጥነት መጨመር', 'Velocity': 'ፍጥነት', 'Exercise!': 'ስፖርት ሥራ!', 'Eat food': 'ምግብ ብላ', 'Labels': 'ስያሜዎች', 'Heart rate': 'የልብ ምት', 'Breathing rate': 'የአተነፋፈስ ፍጥነት',
+  'Animal cell': 'የእንስሳ ሕዋስ', 'Plant cell': 'የዕፅዋት ሕዋስ', 'Click an organ': 'አንድ የአካል ክፍል ይጫኑ', 'Click a part of the cell': 'የሕዋሱን አንድ ክፍል ይጫኑ', 'Click a chamber': 'አንድ ክፍል ይጫኑ',
+  'Start again': 'እንደገና ጀምር', 'Add a catalyst (lowers the energy needed)': 'ካታሊስት ጨምር (የሚያስፈልገውን ኃይል ይቀንሳል)', 'Hint': 'ፍንጭ', 'Next reaction →': 'ቀጣይ ምላሽ →', '← Previous': '← ቀዳሚ',
+  'Physics': 'ፊዚክስ',
+  'Electricity and mechanics: build circuits, launch projectiles, swing pendulums and push boxes to discover the laws of motion and energy.': 'ኤሌክትሪክና መካኒክስ፡ ዑደቶችን ሥሩ፣ ነገሮችን ወርውሩ፣ ፔንዱለም አወዛውዙ፣ ሳጥኖችን ግፉ፤ የእንቅስቃሴና የኃይል ሕጎችን ፈልጉ።',
+  'Explore the human body, the beating heart and the cell, and watch populations and molecules change.': 'የሰውን አካል፣ የሚመታውን ልብና ሕዋስን ዳስሱ፤ የሕዝብ ብዛትና ሞለኪውሎች ሲለወጡ ተመልከቱ።',
+  'Mix chemicals, watch reactions happen particle by particle, and balance chemical equations.': 'ኬሚካሎችን ቀላቅሉ፣ ምላሾችን በቅንጣት ደረጃ ተመልከቱ፣ የኬሚካል እኩልታዎችን አመጣጥኑ።',
+
   // footer and guide
   'Guide for teachers and admins': 'ለመምህራንና ለአስተዳዳሪዎች መመሪያ', 'Site setup and check': 'የድረ-ገጹ ማዋቀሪያና ፍተሻ',
   'Page not found': 'ገጹ አልተገኘም', 'Go home': 'ወደ ዋና ገጽ', 'Not available': 'አይገኝም', 'Go to my dashboard': 'ወደ ዳሽቦርዴ ሂድ'
@@ -187,4 +209,15 @@ STEM.theme = {
 };
 applyTheme();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+
+/* The two buttons work on their own, even before the rest of the site has loaded. */
+document.addEventListener('click', e => {
+  const t = e.target.closest && e.target.closest('.themebtn, .langbtn');
+  if (!t) return;
+  e.preventDefault();
+  if (t.classList.contains('themebtn')) STEM.theme.toggle();
+  else STEM.i18n.set(lang === 'am' ? 'en' : 'am');
+});
+const start = () => { applyTheme(); if (lang === 'am') STEM.i18n.set('am'); else document.querySelectorAll('.langbtn').forEach(b => b.textContent = 'አማርኛ'); };
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

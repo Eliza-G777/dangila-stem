@@ -155,6 +155,8 @@ SIMS.push({
   }
 });
 })();</pre>
+      <h3>Classes</h3>
+      <p>Each class has a join code. Students type the code on the Classes page, or when they create their account. In a class, teachers post announcements and classwork (courses, labs, exams, assignments, materials) with due dates, and see a gradebook. Students see their to-do list on their dashboard.</p>
       <h3>Courses</h3>
       <p>Teachers build courses from lessons. A lesson can contain text, a video, links, one of the labs and an exam. Students tick off lessons, hand in assignments and see their marks and feedback. Each course has a progress report.</p>
       <h3>Going live</h3>
@@ -173,9 +175,17 @@ SIMS.push({
 <script src="assets/js/config.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/sims/chemistry-reaction-mixer.js"></script>
+<script src="assets/js/sims/chemistry-collision.js"></script>
+<script src="assets/js/sims/chemistry-balance.js"></script>
 <script src="assets/js/sims/chemistry-ph-scale.js"></script>
-<script src="assets/js/sims/electricity-circuit-builder.js"></script>
-<script src="assets/js/sims/electricity-ohms-law.js"></script>
+<script src="assets/js/sims/physics-circuit-builder.js"></script>
+<script src="assets/js/sims/physics-ohms-law.js"></script>
+<script src="assets/js/sims/physics-projectile.js"></script>
+<script src="assets/js/sims/physics-pendulum.js"></script>
+<script src="assets/js/sims/physics-forces.js"></script>
+<script src="assets/js/sims/biology-body-explorer.js"></script>
+<script src="assets/js/sims/biology-heart.js"></script>
+<script src="assets/js/sims/biology-cell-explorer.js"></script>
 <script src="assets/js/sims/biology-predator-prey.js"></script>
 <script src="assets/js/sims/biology-membrane-diffusion.js"></script>
 <script src="assets/js/sims/math-graph-transformer.js"></script>
@@ -194,6 +204,7 @@ SIMS.push({
 <script src="assets/js/pages/setup.js"></script>
 <script src="assets/js/pages/studio.js"></script>
 <script src="assets/js/pages/learn.js"></script>
+<script src="assets/js/pages/classes.js"></script>
 <script src="assets/js/app.js"></script>
 <script>document.getElementById('copyBtn').onclick=async e=>{try{await navigator.clipboard.writeText(document.getElementById('snippet').textContent);e.target.textContent='Copied'}catch(err){e.target.textContent='Select the code to copy'}}</script>
 </body>

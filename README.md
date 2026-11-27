@@ -64,6 +64,15 @@ supabase/schema.sql           database, security rules and starting content
 
 Copy a file in `assets/js/sims/`, change its `id`, `subject`, `title` and `mount` code, add its `<script>` line to `index.html` before `store.js`, and commit. Then open **Admin → Labs** and press **Add them to the site**.
 
+## Phase 4: Physics, anatomy and reaction labs, classroom, sign-up
+
+- **Physics** now contains electricity and mechanics: circuit builder, Ohm's law, PhET circuit kit, **projectile motion** (planets, target game), **pendulum and energy** (KE/PE bars, measured vs formula period, damping) and **forces and motion** (F = m × a with friction and a velocity graph).
+- **Biology anatomy**: **human body explorer** (clickable organs with English and Amharic names; animated blood flow, breathing, digestion and nerve signals; exercise mode), **inside the heart** (four chambers, valves opening and closing, blood flow through each phase, slow motion), **cell explorer** (animal and plant cells, clickable organelles, quiz).
+- **Chemistry**: **collision theory** (particles react only with enough energy; temperature, concentration and catalyst; rate graph with earlier runs kept for comparison) and a **balancing equations** game with atom counts and molecule pictures.
+- **Classroom** (`assets/js/pages/classes.js`): classes with a join code; Stream (announcements and comments); Classwork (courses, labs, exams, assignments, materials with due dates and each student's status); People; Grades (gradebook with CSV); a "To do" list on the student dashboard.
+- **Student sign-up** with a class code (`netlify/functions/signup.mjs`), which the admin can switch off.
+- Database changes: `supabase/phase4.sql` (all included in `supabase/ALL_IN_ONE.sql`).
+
 ## Phase 3: easier setup, Amharic, night mode, AI Studio, e-learning
 
 - **Settings from Netlify** (`netlify/functions/config.mjs`): the site reads its Supabase URL and anon key from Netlify environment variables, so `config.js` stays empty.
