@@ -5,7 +5,7 @@ STEM.CONFIG = {
   // From Supabase → Project Settings → API. Leave both empty to run in DEMO mode.
   supabaseUrl: 'https://yvehjvylxnyudxlkoobt.supabase.co/rest/v1/',
   supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2ZWhqdnlseG55dWR4bGtvb2J0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU3MzE3NzcsImV4cCI6MjExMTMwNzc3N30._BTJWnPpXu1_xzgtOBJELJ783RnWy1CUtgzAOqHT0uA',        // the "anon public" key (safe to put here)
-  loginDomain: 'danglila-stem.netlify.app', // must match LOGIN_DOMAIN in Netlify (usernames become name@this-domain)
+  loginDomain: 'dangila-stem.netlify.app', // must match LOGIN_DOMAIN in Netlify (usernames become name@this-domain)
   usersApi: '/api/users',      // the Netlify function that creates accounts
   schoolName: 'Danglila Secondary School',
   clubName: 'Danglila STEM Club'
